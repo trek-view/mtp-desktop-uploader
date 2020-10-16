@@ -226,6 +226,7 @@ const createWindow = async () => {
           click() {
             shell.openExternal('https://mtp.trekview.org');
           },
+        },
         {
           label: 'Source Code',
           click() {
