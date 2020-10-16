@@ -129,7 +129,7 @@ export default function CreatePageWrapper() {
       if (points.length) {
         dispatch(setSequencePoints(points));
       } else {
-        dispatch(setSequenceError('There are no images.'));
+        dispatch(setSequenceError('There are no images in the specified folder.'));
       }
     });
 

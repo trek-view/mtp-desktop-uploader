@@ -241,6 +241,17 @@ export default function MapBox(props: Props) {
 
   useEffect(() => {
     if (map) {
+      
+
+      // map.addControl(new mapboxgl.AttributionControl({
+      //   compact: false
+      // }));
+
+      map.addControl(new mapboxgl.NavigationControl({
+        showCompass: false,
+        showZoom: true
+      }), 'bottom-right');
+
       const markerImgId = 'custom-marker';
       if (!map.hasImage(markerImgId)) {
         const img = new Image(36, 36);

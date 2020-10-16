@@ -11,6 +11,10 @@ import Map from '../components/Map';
 
 import { setCurrentStep, selPoints } from './slice';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 const useStyles = makeStyles((theme) => ({
   wrapper: {
     display: 'flex',
@@ -44,7 +48,27 @@ export default function RequireModify() {
   };
 
   const requireModify = () => {
-    dispatch(setCurrentStep('modifySpace'));
+    fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
+      if (error) {
+        console.log(error);
+        dispatch(setCurrentStep('modifySpace'));
+        return;
+      }
+      var settings = JSON.parse(data);
+      if (settings.modify_gps_spacing === false) {
+        dispatch(setCurrentStep('modifySpace'));
+      } else if (settings.remove_outlier === false) {
+        dispatch(setCurrentStep('outlier'));
+      } else if (settings.modify_heading === false) {
+        dispatch(setCurrentStep('azimuth'));
+      } else if (settings.add_copyright === false) {
+        dispatch(setCurrentStep('copyright'));
+      } else if (settings.add_nadir === false) {
+        dispatch(setCurrentStep('nadir'));
+      } else {
+        dispatch(setCurrentStep('destination'));
+      }
+    });
   };
 
   return (

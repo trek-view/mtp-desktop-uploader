@@ -4,7 +4,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import path from 'path';
 import Async from 'async';
 import { BrowserWindow } from 'electron';
-import fs from 'fs';
+var fs = require('fs');
 import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import mkdirp from 'mkdirp';
@@ -293,8 +293,7 @@ export async function splitVideos(
 
   try {
     const process = new ffmpeg(inputPath);
-    process.then(
-      (video) => {
+    process.then((video: { fnExtractFrameToJPG: (arg0: string, arg1: { number: number; file_name: string; }, arg2: (err: any, files: string[]) => void) => void; }) => {
         video.fnExtractFrameToJPG(
           outputPath,
           {
@@ -310,7 +309,7 @@ export async function splitVideos(
           }
         );
       },
-      (err) => {
+      (err: any) => {
         callback(err);
       }
     );
@@ -335,6 +334,7 @@ export function splitVideoToImage(
         (cb: CallableFunction) => {
           const videopath = path.join(os.tmpdir(), `${uuidv4()}.mp4`);
           fs.copyFile(videoPath, videopath, () => cb(null, videopath));
+          console.log('copy file completed');
         },
         (videopath: string, cb: CallableFunction) => {
           splitVideos(
@@ -342,6 +342,8 @@ export function splitVideoToImage(
             duration,
             outputPath,
             (err: any, filenames: string[]) => {
+              console.log(outputPath);
+              console.log(err);
               if (err) {
                 cb(err);
               } else {

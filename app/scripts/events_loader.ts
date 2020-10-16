@@ -19,7 +19,7 @@ import { IGeoPoint } from '../types/IGeoPoint';
 import { checkIntegrationStatus } from './integrations/mtpw';
 import integrateSequence, { loadIntegrations } from './integrations';
 
-import { loadImages, updateImages, addLogo, modifyLogo } from './image';
+import { loadImages, updateImages, addLogo, modifyLogo, loadImageFiles } from './image';
 import tokenStore from './tokens';
 
 import {
@@ -48,6 +48,19 @@ import loadDefaultNadir from './nadir';
 
 export default (mainWindow: BrowserWindow, app: App) => {
   const basepath = app.getAppPath();
+
+  Array.prototype.division = function(n: number) {
+    var arr = this;
+    var len = arr.length;
+    var cnt = Math.floor(len / n);
+    var tmp = [];
+
+    for (var i = 0; i <= cnt; i++) {
+        tmp.push(arr.splice(0, n));
+    }
+
+    return tmp;
+  }
 
   ipcMain.on('set_token', (_event: IpcMainEvent, key: string, token: any) => {
     tokenStore.set(key, token);
@@ -89,10 +102,13 @@ export default (mainWindow: BrowserWindow, app: App) => {
       }
       fs.mkdirSync(sequencebasepath);
 
+      let outputPath = getOriginalBasePath(seqname, basepath);
+      //outputPath = outputPath.replace(/ /g, '%20');
+
       processVideo(
         mainWindow,
         videoPath,
-        getOriginalBasePath(seqname, basepath),
+        outputPath,
         corrupted
       );
     }
@@ -125,7 +141,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
         ).length;
 
       if (imageLength) {
-        errorHandler(mainWindow, 'The images should be jpeg or jpg');
+        errorHandler(mainWindow, 'No images exist in the specified folder.');
         return;
       }
 
@@ -164,6 +180,81 @@ export default (mainWindow: BrowserWindow, app: App) => {
           }
         }
       );
+    }
+  );
+
+  ipcMain.on(
+    'load_image_files',
+    async (
+      _event: IpcMainEvent,
+      dirPath: string,
+      files: string[],
+      seqname: string,
+      corrupedCheck: boolean
+    ) => {
+      if (!fs.existsSync(resultdirectorypath(app))) {
+        try {
+          fs.mkdirSync(resultdirectorypath(app));
+        } catch (e) {
+          errorHandler(mainWindow, e);
+          return;
+        }
+      }
+
+      if (files.length == 0) {
+        errorHandler(mainWindow, 'No image files selected.');
+        return;
+      }
+
+      if (files.length === 1) {
+        errorHandler(mainWindow, 'More than one image is required to create a sequence.');
+        return;
+      }
+
+      if (files.length > 500) {
+        let dividedFiles = files.division(500);
+        for (var i = 1; i <= dividedFiles.length; i++) {
+          loadImageFiles(
+            dirPath,
+            dividedFiles[i - 1], 
+            getSequenceBasePath(seqname + "_Part" + i.toString(), basepath),
+            corrupedCheck,
+            (error: any, result: any) => {
+              if (error) {
+                errorHandler(mainWindow, error);
+              } else {
+                const { points, removedfiles } = result;
+                sendPoints(mainWindow, points);
+  
+                if (removedfiles.length) {
+                  sendToClient(mainWindow, 'removed_files', removedfiles);
+                }
+                if (points.length) sendToClient(mainWindow, 'finish');
+              }
+            }
+          );
+        }
+      } else {
+        loadImageFiles(
+          dirPath,
+          files, 
+          getSequenceBasePath(seqname, basepath),
+          corrupedCheck,
+          (error: any, result: any) => {
+            if (error) {
+              errorHandler(mainWindow, error);
+            } else {
+              const { points, removedfiles } = result;
+              sendPoints(mainWindow, points);
+
+              if (removedfiles.length) {
+                sendToClient(mainWindow, 'removed_files', removedfiles);
+              }
+              if (points.length) sendToClient(mainWindow, 'finish');
+            }
+          }
+        );
+      }
     }
   );
 
@@ -429,9 +520,9 @@ export default (mainWindow: BrowserWindow, app: App) => {
     }
     await removeTempFiles(app);
     mainWindow?.destroy();
-    if (process.platform !== 'darwin') {
+    // if (process.platform !== 'darwin') {
       app.quit();
-    }
+    // }
   });
 
   ipcMain.on(

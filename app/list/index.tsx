@@ -38,6 +38,10 @@ import { selCameras, selConfigLoaded } from '../base/slice';
 import { Camera } from '../types/Camera';
 import { setEdit } from '../edit/slice';
 
+import '../app.global.css';
+
+import Pager from 'react-pager';
+
 const { ipcRenderer } = window.require('electron');
 
 const drawerWidth = 300;
@@ -83,6 +87,9 @@ interface State {
   capturedEndDate: string;
   deleteModalOpen: boolean;
   deleteSequenceName: string;
+  totalPages: number;
+  currentPage: number;
+  visiblePage: number;
 }
 
 export default function ListPageWrapper() {
@@ -101,6 +108,9 @@ export default function ListPageWrapper() {
     capturedEndDate: '',
     deleteModalOpen: false,
     deleteSequenceName: '',
+    totalPages: 1,
+    currentPage: 0,
+    visiblePage: 3,
   });
 
   if (!loaded) {
@@ -197,7 +207,20 @@ export default function ListPageWrapper() {
   );
 
   const items: JSX.Element[] = [];
-  seqs.forEach((item: Summary) => {
+
+  const handlePageChanged = (newPage: number) => {
+    setState({
+      ...state,
+      currentPage: newPage,
+    });
+  };
+
+  state.totalPages = Math.ceil(seqs.length / 3);
+  let startIndex = state.currentPage * 3;
+  let endIndex = state.currentPage * 3 + 3;
+  endIndex = endIndex > seqs.length ? seqs.length : endIndex;
+
+  seqs.slice(startIndex, endIndex).map((item: Summary) => {
     if (
       item.name.toLowerCase().indexOf(state.name.toLowerCase()) >= 0 &&
       (state.transporttype === '' || item.type === state.transporttype) &&
@@ -331,11 +354,21 @@ export default function ListPageWrapper() {
               {items.length ? (
                 items
               ) : (
-                <Typography>
-                  No sequences exist that match the search criteria. Why not
-                  create one? As if you needed an excuse for an adventure!
-                </Typography>
-              )}
+                  <Typography>
+                    No sequences exist that match the search criteria. Why not
+                    create one? As if you needed an excuse for an adventure!
+                  </Typography>
+                )}
+              {seqs.length > 3 ?
+                <Pager
+                  total={state.totalPages}
+                  current={state.currentPage}
+                  visiblePages={state.visiblePage}
+                  titles={{ first: 'First', last: 'Last' }}
+                  className="pagination-sm pull-right"
+                  onPageChanged={handlePageChanged}
+                /> : null
+              }
             </>
           )}
           {(!loaded || !configLoaded) && <LinearProgress />}

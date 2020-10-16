@@ -15,6 +15,10 @@ import {
 } from './slice';
 import { IGeoPoint } from '../types/IGeoPoint';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 interface State {
   points: IGeoPoint[];
   azimuth: number | string;
@@ -65,7 +69,21 @@ export default function SequenceModifyAzimuth() {
 
   const confirmMode = () => {
     dispatch(setSequencePoints(points));
-    dispatch(setCurrentStep('copyright'));
+    fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
+      if (error) {
+        console.log(error);
+        dispatch(setCurrentStep('copyright'));
+        return;
+      }
+      var settings = JSON.parse(data);
+      if (settings.add_copyright === false) {
+        dispatch(setCurrentStep('copyright'));
+      } else if (settings.add_nadir === false) {
+        dispatch(setCurrentStep('nadir'));
+      } else {
+        dispatch(setCurrentStep('destination'));
+      }
+    });
   };
 
   return (

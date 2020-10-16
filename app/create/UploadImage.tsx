@@ -34,7 +34,7 @@ export default function SequenceUploadImage() {
         properties: ['openFile'],
         filters: [
           {
-            name: 'video',
+            name: 'Video',
             extensions: ['mp4'],
           },
         ],
@@ -45,7 +45,7 @@ export default function SequenceUploadImage() {
         properties: ['openDirectory'],
       };
     }
-    const result = await remote.dialog.showOpenDialogSync(
+    const result = remote.dialog.showOpenDialogSync(
       parentWindow,
       options
     );
@@ -53,6 +53,56 @@ export default function SequenceUploadImage() {
     if (result) {
       ipcRenderer.send(channelName, result[0], seqName, corrupted);
       dispatch(setSequenceImagePath(result[0]));
+    }
+  };
+
+  const openFileDialog2 = async () => {
+    const parentWindow = remote.getCurrentWindow();
+    let options: OpenDialogSyncOptions;
+    let channelName: string;
+    if (attachType === 'video') {
+      channelName = 'load_video';
+      options = {
+        properties: ['openFile'],
+        filters: [
+          {
+            name: 'Video',
+            extensions: ['mp4'],
+          },
+        ],
+      };
+    } else {
+      channelName = 'load_image_files';
+      options = {
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          {
+            name: 'Image',
+            extensions: ['jpg', 'jpeg', 'png'],
+          },
+        ],
+      };
+    }
+    const result = remote.dialog.showOpenDialogSync(
+      parentWindow,
+      options
+    );
+
+    console.dir(result);
+
+    if (result) {
+      if (channelName === 'load_image_files') {
+        const path = result[0].substring(0, result[0].lastIndexOf("\\") + 1);
+        let fileNames = result;
+        for (var i = 0; i < fileNames.length; i++) {
+          fileNames[i] = fileNames[i].replace(/^.*[\\\/]/, '');
+        }
+        ipcRenderer.send(channelName, path, fileNames, seqName, corrupted);
+        dispatch(setSequenceImagePath(path));
+      } else {
+        ipcRenderer.send(channelName, result[0], seqName, corrupted);
+        dispatch(setSequenceImagePath(result[0]));
+      }
     }
   };
 
@@ -72,9 +122,8 @@ export default function SequenceUploadImage() {
     <>
       <Grid item xs={12}>
         <Typography variant="h6" align="center" color="textSecondary">
-          {`Please upload the ${
-            attachType === 'video' ? attachType : 'timelapse photos'
-          }`}
+          {`Please upload the ${attachType === 'video' ? attachType : 'timelapse photos'
+            }`}
         </Typography>
 
         <FormControlLabel
@@ -83,15 +132,34 @@ export default function SequenceUploadImage() {
           label="Check for corrupted (black) images (only recommended you tick this box if you suspect the file(s) contain black and/or visually corrupted frames)"
         />
       </Grid>
+      {attachType === 'video' ? null :
+        <Grid item xs={12}>
+          <Button
+            onClick={openFileDialog}
+            color="primary"
+            endIcon={<CloudUploadIcon />}
+            variant="contained"
+          >
+            Select Image Folder
+        </Button>
+        </Grid>}
       <Grid item xs={12}>
-        <Button
-          onClick={openFileDialog}
+        {attachType === 'video' ? <Button
+          onClick={openFileDialog2}
           color="primary"
           endIcon={<CloudUploadIcon />}
           variant="contained"
         >
-          Upload
-        </Button>
+          Select Video File
+        </Button> :
+          <Button
+            onClick={openFileDialog2}
+            color="primary"
+            endIcon={<CloudUploadIcon />}
+            variant="contained"
+          >
+            Select Image Files
+        </Button>}
       </Grid>
       <Grid item xs={12} />
     </>

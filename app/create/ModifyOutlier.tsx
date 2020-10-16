@@ -30,6 +30,10 @@ import {
   isRequiredNadir,
 } from './slice';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 const useStyles = makeStyles((theme) => ({
   wrapper: {
     display: 'flex',
@@ -50,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
 
 interface State {
   points: IGeoPoint[];
@@ -173,9 +178,25 @@ export default function SequenceModifyOutlier() {
   const confirmMode = () => {
     const meters = parseFloat(metersStr);
     dispatch(setSequenceOutlierMeters(meters));
-    dispatch(setCurrentStep('azimuth'));
     dispatch(setSequencePoints(points));
     dispatch(setOutlierMode(mode));
+    fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
+      if (error) {
+        console.log(error);
+        dispatch(setCurrentStep('azimuth'));
+        return;
+      }
+      var settings = JSON.parse(data);
+      if (settings.modify_heading === false) {
+        dispatch(setCurrentStep('azimuth'));
+      } else if (settings.add_copyright === false) {
+        dispatch(setCurrentStep('copyright'));
+      } else if (settings.add_nadir === false) {
+        dispatch(setCurrentStep('nadir'));
+      } else {
+        dispatch(setCurrentStep('destination'));
+      }
+    });
   };
 
   const looksGood = () => {

@@ -16,6 +16,10 @@ import {
   isRequiredNadir,
 } from './slice';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 interface State {
   comment: string;
   copyright: string;
@@ -69,11 +73,19 @@ export default function Copyright() {
 
   const confirmMode = () => {
     dispatch(setCopyright(state));
-    if (isrequirednadir) {
-      dispatch(setCurrentStep('nadir'));
-    } else {
-      dispatch(setCurrentStep('destination'));
-    }
+    fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
+      if (error) {
+        console.log(error);
+        dispatch(setCurrentStep('nadir'));
+        return;
+      }
+      var settings = JSON.parse(data);
+      if (settings.add_nadir === false) {
+        dispatch(setCurrentStep('nadir'));
+      } else {
+        dispatch(setCurrentStep('destination'));
+      }
+    });
   };
 
   return (

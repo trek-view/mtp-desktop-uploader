@@ -49,6 +49,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 interface State {
   frames: number;
   position: number;
@@ -85,6 +89,25 @@ export default function SequenceModifySpace() {
     dispatch(setSequencePoints(points));
     dispatch(setSequenceFrame(state.frames));
     dispatch(setCurrentStep('outlier'));
+    fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
+      if (error) {
+        console.log(error);
+        dispatch(setCurrentStep('outlier'));
+        return;
+      }
+      var settings = JSON.parse(data);
+      if (settings.remove_outlier === false) {
+        dispatch(setCurrentStep('outlier'));
+      } else if (settings.modify_heading === false) {
+        dispatch(setCurrentStep('azimuth'));
+      } else if (settings.add_copyright === false) {
+        dispatch(setCurrentStep('copyright'));
+      } else if (settings.add_nadir === false) {
+        dispatch(setCurrentStep('nadir'));
+      } else {
+        dispatch(setCurrentStep('destination'));
+      }
+    });
   };
 
   const looksGood = () => {
