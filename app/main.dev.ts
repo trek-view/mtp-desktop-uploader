@@ -222,9 +222,14 @@ const createWindow = async () => {
           },
         },
         {
-          label: 'Mapthepaths.com',
+          label: 'Map the Paths Web',
           click() {
-            shell.openExternal('https://www.mapthepaths.com');
+            shell.openExternal('https://mtp.trekview.org');
+          },
+        {
+          label: 'Source Code',
+          click() {
+            shell.openExternal('https://github.com/trek-view/mtp-desktop-uploader');
           },
         },
       ]
