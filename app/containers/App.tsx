@@ -41,7 +41,6 @@ const useStyles = makeStyles((theme) => ({
 interface State {
   showModal: boolean;
   aboutPage: boolean;
-  settingPage: boolean;
 }
 
 type Props = {
@@ -70,7 +69,6 @@ export default function App(props: Props) {
   const [state, setState] = useState<State>({
     showModal: false,
     aboutPage: false,
-    settingPage: false,
   });
   const checkNeeded = loadedSequences
     .filter(
@@ -135,18 +133,6 @@ export default function App(props: Props) {
       }
     });
 
-    ipcRenderer.on('setting_page', (_event: IpcRendererEvent) => {
-      if (name !== '') {
-        setState({
-          ...state,
-          showModal: true,
-          settingPage: true,
-        });
-      } else {
-        dispatch(push(routes.SETTING));
-      }
-    });
-
     ipcRenderer.on('close_app', (_event: IpcRendererEvent) => {
       if (name !== '') {
         setState({
@@ -175,7 +161,6 @@ export default function App(props: Props) {
     return () => {
       ipcRenderer.removeAllListeners('close_app');
       ipcRenderer.removeAllListeners('about_page');
-      // ipcRenderer.removeAllListeners('setting_page');
       ipcRenderer.removeAllListeners('loaded_config');
       ipcRenderer.removeAllListeners('loaded_token');
       ipcRenderer.removeAllListeners('updated_sequences');
@@ -187,16 +172,12 @@ export default function App(props: Props) {
       ...state,
       showModal: false,
       aboutPage: false,
-      settingPage: false,
     });
   };
 
   const closeApp = () => {
     if (state.aboutPage) {
       dispatch(push(routes.ABOUT));
-      ipcRenderer.send('reset_sequence', sequence);
-    } else if (state.settingPage) {
-      dispatch(push(routes.SETTING));
       ipcRenderer.send('reset_sequence', sequence);
     } else {
       ipcRenderer.send('closed_app', sequence);

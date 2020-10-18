@@ -76,6 +76,11 @@ export default function MapBox(props: Props) {
 
   const [map, setMap] = useState<Map | null>(null);
 
+  map?.addControl(new mapboxgl.NavigationControl({
+    showCompass: false,
+    showZoom: true
+  }), 'bottom-right');
+
   const classes = useStyles();
   const filteredpoints = points.filter(
     (point: IGeoPoint) => point.MAPLatitude && point.MAPLongitude
@@ -171,14 +176,12 @@ export default function MapBox(props: Props) {
               {`GPS Time: ${point.GPSDateTime}`}
             </Typography>
             <Typography variant="caption" display="block">
-              {`Heading / Azimuth (degrees): ${
-                point.Azimuth ? point.Azimuth.toFixed(2) : 0
-              }`}
+              {`Heading / Azimuth (degrees): ${point.Azimuth ? point.Azimuth.toFixed(2) : 0
+                }`}
             </Typography>
             <Typography variant="caption" display="block">
-              {`Distance to next photo (meters): ${
-                point.Distance ? point.Distance.toFixed(2) : 0
-              }`}
+              {`Distance to next photo (meters): ${point.Distance ? point.Distance.toFixed(2) : 0
+                }`}
             </Typography>
             <Typography variant="caption" display="block">
               {`Time to next photo (seconds): ${difftime}`}
@@ -241,17 +244,6 @@ export default function MapBox(props: Props) {
 
   useEffect(() => {
     if (map) {
-      
-
-      // map.addControl(new mapboxgl.AttributionControl({
-      //   compact: false
-      // }));
-
-      map.addControl(new mapboxgl.NavigationControl({
-        showCompass: false,
-        showZoom: true
-      }), 'bottom-right');
-
       const markerImgId = 'custom-marker';
       if (!map.hasImage(markerImgId)) {
         const img = new Image(36, 36);

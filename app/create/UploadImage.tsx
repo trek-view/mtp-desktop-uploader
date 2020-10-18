@@ -88,11 +88,9 @@ export default function SequenceUploadImage() {
       options
     );
 
-    console.dir(result);
-
     if (result) {
       if (channelName === 'load_image_files') {
-        const path = result[0].substring(0, result[0].lastIndexOf("\\") + 1);
+        const path = require('path').dirname(result[0]);
         let fileNames = result;
         for (var i = 0; i < fileNames.length; i++) {
           fileNames[i] = fileNames[i].replace(/^.*[\\\/]/, '');

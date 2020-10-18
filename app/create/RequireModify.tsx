@@ -1,11 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Grid, Button, Box, Typography } from '@material-ui/core';
+import { Grid, Button, Box, Typography, Container, FormGroup, Checkbox, FormControlLabel } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 
 import Map from '../components/Map';
 
@@ -43,9 +42,30 @@ export default function RequireModify() {
 
   const classes = useStyles();
 
-  const confirmMode = () => {
-    dispatch(setCurrentStep('destination'));
-  };
+  const [state, setState] = React.useState({
+    modify_gps_spacing: false,
+    remove_outlier: false,
+    modify_heading: false,
+    add_copyright: false,
+    add_nadir: false,
+  });
+
+  const handleChange = (event: { target: { name: any; checked: any; }; }) => {
+    const updateArr = { ...state, [event.target.name]: event.target.checked };
+    setState(updateArr);
+    fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 
+    JSON.stringify({
+        'modify_gps_spacing': updateArr.modify_gps_spacing,
+        'remove_outlier': updateArr.remove_outlier,
+        'modify_heading': updateArr.modify_heading,
+        'add_copyright': updateArr.add_copyright,
+        'add_nadir': updateArr.add_nadir,
+      })
+    )};
+
+  // const confirmMode = () => {
+  //   dispatch(setCurrentStep('destination'));
+  // };
 
   const requireModify = () => {
     fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
@@ -54,6 +74,7 @@ export default function RequireModify() {
         dispatch(setCurrentStep('modifySpace'));
         return;
       }
+      console.log(data);
       var settings = JSON.parse(data);
       if (settings.modify_gps_spacing === false) {
         dispatch(setCurrentStep('modifySpace'));
@@ -87,6 +108,30 @@ export default function RequireModify() {
         <Map points={points} />
       </Grid>
       <Grid item xs={12}>
+        <Box>
+          <Typography paragraph>
+            Please select upload settings can be skipped:
+          </Typography>
+          <Container maxWidth="sm">
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.modify_gps_spacing} onChange={handleChange} name="modify_gps_spacing" color="primary" />} label="Modify GPS Spacing" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.remove_outlier} onChange={handleChange} name="remove_outlier" color="primary" />} label="Remove Outlier" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.modify_heading} onChange={handleChange} name="modify_heading" color="primary" />} label="Modify Heading" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.add_copyright} onChange={handleChange} name="add_copyright" color="primary" />} label="Add Copyright" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.add_nadir} onChange={handleChange} name="add_nadir" color="primary" />} label="Add Nadir" />
+            </FormGroup>
+          </Container>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
         <Box className={classes.buttonWrapper}>
           <Button
             endIcon={<ChevronRightIcon />}
@@ -95,14 +140,6 @@ export default function RequireModify() {
             variant="contained"
           >
             Advanced settings
-          </Button>
-          <Button
-            endIcon={<ThumbUpIcon />}
-            color="primary"
-            onClick={confirmMode}
-            variant="contained"
-          >
-            Skip advanced settings
           </Button>
         </Box>
       </Grid>

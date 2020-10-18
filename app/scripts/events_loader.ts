@@ -49,14 +49,14 @@ import loadDefaultNadir from './nadir';
 export default (mainWindow: BrowserWindow, app: App) => {
   const basepath = app.getAppPath();
 
-  Array.prototype.division = function(n: number) {
+  Array.prototype.division = function (n: number) {
     var arr = this;
     var len = arr.length;
     var cnt = Math.floor(len / n);
     var tmp = [];
 
     for (var i = 0; i <= cnt; i++) {
-        tmp.push(arr.splice(0, n));
+      tmp.push(arr.splice(0, n));
     }
 
     return tmp;
@@ -131,29 +131,26 @@ export default (mainWindow: BrowserWindow, app: App) => {
         }
       }
 
-      const imageLength = fs
-        .readdirSync(dirPath)
-        .filter(
-          (name: string) =>
-            !name.toLowerCase().endsWith('.png') &&
-            !name.toLowerCase().endsWith('.jpeg') &&
-            !name.toLowerCase().endsWith('.jpg')
-        ).length;
+      const fileNames = fs
+        .readdirSync(dirPath, { withFileTypes: true })
+        .filter(dirent => dirent.isFile())
+        .map(dirent => dirent.name);
 
-      if (imageLength) {
+      let imageLength = 0;
+      fileNames.forEach((fileName) => {
+        if (fileName.toLowerCase().endsWith('.png') ||
+          fileName.toLowerCase().endsWith('.jpeg') ||
+          fileName.toLowerCase().endsWith('.jpg'))
+          imageLength++;
+      });
+
+      if (imageLength == 0) {
         errorHandler(mainWindow, 'No images exist in the specified folder.');
         return;
       }
 
       if (
-        fs
-          .readdirSync(dirPath)
-          .filter(
-            (name: string) =>
-              name.toLowerCase().endsWith('.png') ||
-              name.toLowerCase().endsWith('.jpeg') ||
-              name.toLowerCase().endsWith('.jpg')
-          ).length === 1
+        imageLength == 1
       ) {
         errorHandler(
           mainWindow,
@@ -216,7 +213,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
         for (var i = 1; i <= dividedFiles.length; i++) {
           loadImageFiles(
             dirPath,
-            dividedFiles[i - 1], 
+            dividedFiles[i - 1],
             getSequenceBasePath(seqname + "_Part" + i.toString(), basepath),
             corrupedCheck,
             (error: any, result: any) => {
@@ -225,7 +222,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
               } else {
                 const { points, removedfiles } = result;
                 sendPoints(mainWindow, points);
-  
+
                 if (removedfiles.length) {
                   sendToClient(mainWindow, 'removed_files', removedfiles);
                 }
@@ -237,7 +234,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       } else {
         loadImageFiles(
           dirPath,
-          files, 
+          files,
           getSequenceBasePath(seqname, basepath),
           corrupedCheck,
           (error: any, result: any) => {
@@ -521,7 +518,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     await removeTempFiles(app);
     mainWindow?.destroy();
     // if (process.platform !== 'darwin') {
-      app.quit();
+    app.quit();
     // }
   });
 

@@ -240,12 +240,6 @@ const createWindow = async () => {
       submenu: [{ role: 'reload' }, { label: 'custom reload' }],
     },
     {
-      label: 'Settings',
-      click() {
-        sendToClient(mainWindow, 'setting_page');
-      },
-    },
-    {
       label: 'About',
       click() {
         sendToClient(mainWindow, 'about_page');

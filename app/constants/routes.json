@@ -3,6 +3,5 @@
   "CREATE": "/create",
   "EDIT": "/edit",
   "ABOUT": "/about",
-  "LOGIN": "/login", 
-  "SETTING": "/setting"
+  "LOGIN": "/login"
 }
