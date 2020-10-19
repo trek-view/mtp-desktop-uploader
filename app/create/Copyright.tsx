@@ -80,7 +80,7 @@ export default function Copyright() {
         return;
       }
       var settings = JSON.parse(data);
-      if (settings.add_nadir === false) {
+      if (settings.add_nadir === true) {
         dispatch(setCurrentStep('nadir'));
       } else {
         dispatch(setCurrentStep('destination'));

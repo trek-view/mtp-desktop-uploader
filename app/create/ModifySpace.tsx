@@ -96,13 +96,13 @@ export default function SequenceModifySpace() {
         return;
       }
       var settings = JSON.parse(data);
-      if (settings.remove_outlier === false) {
+      if (settings.remove_outlier === true) {
         dispatch(setCurrentStep('outlier'));
-      } else if (settings.modify_heading === false) {
+      } else if (settings.modify_heading === true) {
         dispatch(setCurrentStep('azimuth'));
-      } else if (settings.add_copyright === false) {
+      } else if (settings.add_copyright === true) {
         dispatch(setCurrentStep('copyright'));
-      } else if (settings.add_nadir === false) {
+      } else if (settings.add_nadir === true) {
         dispatch(setCurrentStep('nadir'));
       } else {
         dispatch(setCurrentStep('destination'));

@@ -76,15 +76,15 @@ export default function RequireModify() {
       }
       console.log(data);
       var settings = JSON.parse(data);
-      if (settings.modify_gps_spacing === false) {
+      if (settings.modify_gps_spacing === true) {
         dispatch(setCurrentStep('modifySpace'));
-      } else if (settings.remove_outlier === false) {
+      } else if (settings.remove_outlier === true) {
         dispatch(setCurrentStep('outlier'));
-      } else if (settings.modify_heading === false) {
+      } else if (settings.modify_heading === true) {
         dispatch(setCurrentStep('azimuth'));
-      } else if (settings.add_copyright === false) {
+      } else if (settings.add_copyright === true) {
         dispatch(setCurrentStep('copyright'));
-      } else if (settings.add_nadir === false) {
+      } else if (settings.add_nadir === true) {
         dispatch(setCurrentStep('nadir'));
       } else {
         dispatch(setCurrentStep('destination'));
@@ -110,7 +110,7 @@ export default function RequireModify() {
       <Grid item xs={12}>
         <Box>
           <Typography paragraph>
-            Please select upload settings can be skipped:
+            Please tick upload settings to be changed:
           </Typography>
           <Container maxWidth="sm">
             <FormGroup>

@@ -187,11 +187,11 @@ export default function SequenceModifyOutlier() {
         return;
       }
       var settings = JSON.parse(data);
-      if (settings.modify_heading === false) {
+      if (settings.modify_heading === true) {
         dispatch(setCurrentStep('azimuth'));
-      } else if (settings.add_copyright === false) {
+      } else if (settings.add_copyright === true) {
         dispatch(setCurrentStep('copyright'));
-      } else if (settings.add_nadir === false) {
+      } else if (settings.add_nadir === true) {
         dispatch(setCurrentStep('nadir'));
       } else {
         dispatch(setCurrentStep('destination'));

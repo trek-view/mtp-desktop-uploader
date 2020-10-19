@@ -76,9 +76,9 @@ export default function SequenceModifyAzimuth() {
         return;
       }
       var settings = JSON.parse(data);
-      if (settings.add_copyright === false) {
+      if (settings.add_copyright === true) {
         dispatch(setCurrentStep('copyright'));
-      } else if (settings.add_nadir === false) {
+      } else if (settings.add_nadir === true) {
         dispatch(setCurrentStep('nadir'));
       } else {
         dispatch(setCurrentStep('destination'));
