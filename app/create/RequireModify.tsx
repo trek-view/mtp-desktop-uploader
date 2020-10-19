@@ -117,13 +117,13 @@ export default function RequireModify() {
               <FormControlLabel control={<Checkbox checked={state.modify_gps_spacing} onChange={handleChange} name="modify_gps_spacing" color="primary" />} label="Modify GPS Spacing" />
             </FormGroup>
             <FormGroup>
-              <FormControlLabel control={<Checkbox checked={state.remove_outlier} onChange={handleChange} name="remove_outlier" color="primary" />} label="Remove Outlier" />
+              <FormControlLabel control={<Checkbox checked={state.remove_outlier} onChange={handleChange} name="remove_outlier" color="primary" />} label="Remove Outliers (or delete photos)" />
             </FormGroup>
             <FormGroup>
               <FormControlLabel control={<Checkbox checked={state.modify_heading} onChange={handleChange} name="modify_heading" color="primary" />} label="Modify Heading" />
             </FormGroup>
             <FormGroup>
-              <FormControlLabel control={<Checkbox checked={state.add_copyright} onChange={handleChange} name="add_copyright" color="primary" />} label="Add Copyright" />
+              <FormControlLabel control={<Checkbox checked={state.add_copyright} onChange={handleChange} name="add_copyright" color="primary" />} label="Add Copyright Information" />
             </FormGroup>
             <FormGroup>
               <FormControlLabel control={<Checkbox checked={state.add_nadir} onChange={handleChange} name="add_nadir" color="primary" />} label="Add Nadir" />
