@@ -250,67 +250,6 @@ export const calculatePoints = (
   }
 };
 
-export function loadImages(
-  dirPath: string,
-  outputpath: string,
-  corrupedCheck: boolean,
-  callback: CallableFunction
-) {
-  let files = fs
-    .readdirSync(dirPath, { withFileTypes: true })
-    .filter(dirent => dirent.isFile())
-    .map(dirent => dirent.name);
-  files = files.filter((file: string) => {
-    file.toLowerCase().endsWith('.png') ||
-      file.toLowerCase().endsWith('.jpeg') ||
-      file.toLowerCase().endsWith('.jpg')
-  });
-  console.log(files);
-  Async.waterfall(
-    [
-      (cb1: CallableFunction) => {
-        fs.exists(outputpath, (existed: boolean) => {
-          if (!existed) {
-            fs.mkdir(outputpath, (err) => {
-              if (err) {
-                cb1(err);
-              } else cb1(null);
-            });
-          } else {
-            cb1(null);
-          }
-        });
-      },
-      (cb1: CallableFunction) => {
-        const originalpath = path.join(outputpath, 'originals');
-        fs.exists(originalpath, (existed: boolean) => {
-          if (existed) {
-            rimraf(originalpath, (error: any) => {
-              if (error) cb1(error);
-              else cb1(null);
-            });
-          } else {
-            cb1(null);
-          }
-        });
-      },
-      (cb1: CallableFunction) => {
-        const originalpath = path.join(outputpath, 'originals');
-        fs.mkdir(originalpath, (err) => {
-          if (err) {
-            cb1(err);
-          } else cb1(null, files, dirPath, originalpath, corrupedCheck);
-        });
-      },
-      copyFiles,
-      getPoints,
-      calculatePoints,
-    ],
-    (err: any, result) => {
-      callback(err, result);
-    }
-  );
-}
 
 export function loadImageFiles(
   dirPath: string,

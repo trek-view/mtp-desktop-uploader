@@ -19,7 +19,7 @@ import { IGeoPoint } from '../types/IGeoPoint';
 import { checkIntegrationStatus } from './integrations/mtpw';
 import integrateSequence, { loadIntegrations } from './integrations';
 
-import { loadImages, updateImages, addLogo, modifyLogo, loadImageFiles } from './image';
+import { updateImages, addLogo, modifyLogo, loadImageFiles } from './image';
 import tokenStore from './tokens';
 
 import {
@@ -131,18 +131,20 @@ export default (mainWindow: BrowserWindow, app: App) => {
         }
       }
 
-      const fileNames = fs
+      let fileNames = fs
         .readdirSync(dirPath, { withFileTypes: true })
         .filter(dirent => dirent.isFile())
         .map(dirent => dirent.name);
 
-      let imageLength = 0;
-      fileNames.forEach((fileName) => {
-        if (fileName.toLowerCase().endsWith('.png') ||
-          fileName.toLowerCase().endsWith('.jpeg') ||
-          fileName.toLowerCase().endsWith('.jpg'))
-          imageLength++;
+        console.log(fileNames);
+
+      fileNames = fileNames.filter((file: string) => {
+        return file.toLowerCase().endsWith('.png') ||
+          file.toLowerCase().endsWith('.jpeg') ||
+          file.toLowerCase().endsWith('.jpg')
       });
+
+      const imageLength = fileNames.length;
 
       if (imageLength == 0) {
         errorHandler(mainWindow, 'No images exist in the specified folder.');
@@ -159,8 +161,9 @@ export default (mainWindow: BrowserWindow, app: App) => {
         return;
       }
 
-      loadImages(
+      loadImageFiles(
         dirPath,
+        fileNames,
         getSequenceBasePath(seqname, basepath),
         corrupedCheck,
         (error: any, result: any) => {
@@ -208,50 +211,25 @@ export default (mainWindow: BrowserWindow, app: App) => {
         return;
       }
 
-      if (files.length > 500) {
-        let dividedFiles = files.division(500);
-        for (var i = 1; i <= dividedFiles.length; i++) {
-          loadImageFiles(
-            dirPath,
-            dividedFiles[i - 1],
-            getSequenceBasePath(seqname + "_Part" + i.toString(), basepath),
-            corrupedCheck,
-            (error: any, result: any) => {
-              if (error) {
-                errorHandler(mainWindow, error);
-              } else {
-                const { points, removedfiles } = result;
-                sendPoints(mainWindow, points);
+      loadImageFiles(
+        dirPath,
+        files,
+        getSequenceBasePath(seqname, basepath),
+        corrupedCheck,
+        (error: any, result: any) => {
+          if (error) {
+            errorHandler(mainWindow, error);
+          } else {
+            const { points, removedfiles } = result;
+            sendPoints(mainWindow, points);
 
-                if (removedfiles.length) {
-                  sendToClient(mainWindow, 'removed_files', removedfiles);
-                }
-                if (points.length) sendToClient(mainWindow, 'finish');
-              }
+            if (removedfiles.length) {
+              sendToClient(mainWindow, 'removed_files', removedfiles);
             }
-          );
-        }
-      } else {
-        loadImageFiles(
-          dirPath,
-          files,
-          getSequenceBasePath(seqname, basepath),
-          corrupedCheck,
-          (error: any, result: any) => {
-            if (error) {
-              errorHandler(mainWindow, error);
-            } else {
-              const { points, removedfiles } = result;
-              sendPoints(mainWindow, points);
-
-              if (removedfiles.length) {
-                sendToClient(mainWindow, 'removed_files', removedfiles);
-              }
-              if (points.length) sendToClient(mainWindow, 'finish');
-            }
+            if (points.length) sendToClient(mainWindow, 'finish');
           }
-        );
-      }
+        }
+      );
     }
   );
 

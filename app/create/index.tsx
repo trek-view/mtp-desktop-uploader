@@ -129,7 +129,7 @@ export default function CreatePageWrapper() {
       if (points.length) {
         dispatch(setSequencePoints(points));
       } else {
-        dispatch(setSequenceError('There are no images in the specified folder.'));
+        dispatch(setSequenceError('Cannot read points data from the files.'));
       }
     });
 
