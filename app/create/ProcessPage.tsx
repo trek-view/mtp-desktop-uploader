@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { IpcRendererEvent } from 'electron';
 import {
+  selSequence,
   selSequenceName,
   selProcessPageNext,
   setCurrentStep,
@@ -25,12 +26,20 @@ interface State {
 
 export default function SequenceProcessPage() {
   const nextStep = useSelector(selProcessPageNext);
-  const name = useSelector(selSequenceName);
+  let name = useSelector(selSequenceName);
   const basepath = useSelector(selBasePath);
   const dispatch = useDispatch();
   const [state, setState] = useState<State>({
     message: null,
   });
+  name = getSequenceBasePath(
+    name,
+    basepath
+  );
+  const sequence = useSelector(selSequence);
+  if (sequence.multiPartProcessing == true) {
+    name = name + "_part$ ($: index of each part)";
+  }
 
   useEffect(() => {
     ipcRenderer.on('finish', (_event: IpcRendererEvent) => {
@@ -92,10 +101,7 @@ export default function SequenceProcessPage() {
       <Grid item xs={12}>
         {nextStep === 'final' && (
           <Typography align="center" color="textSecondary">
-            {`Output can be viewed in [${getSequenceBasePath(
-              name,
-              basepath
-            )}] once complete`}
+            {`Output can be viewed in [${name}] once complete`}
           </Typography>
         )}
       </Grid>

@@ -49,19 +49,6 @@ import loadDefaultNadir from './nadir';
 export default (mainWindow: BrowserWindow, app: App) => {
   const basepath = app.getAppPath();
 
-  Array.prototype.division = function (n: number) {
-    var arr = this;
-    var len = arr.length;
-    var cnt = Math.floor(len / n);
-    var tmp = [];
-
-    for (var i = 0; i <= cnt; i++) {
-      tmp.push(arr.splice(0, n));
-    }
-
-    return tmp;
-  }
-
   ipcMain.on('set_token', (_event: IpcMainEvent, key: string, token: any) => {
     tokenStore.set(key, token);
   });
@@ -136,8 +123,6 @@ export default (mainWindow: BrowserWindow, app: App) => {
         .filter(dirent => dirent.isFile())
         .map(dirent => dirent.name);
 
-        console.log(fileNames);
-
       fileNames = fileNames.filter((file: string) => {
         return file.toLowerCase().endsWith('.png') ||
           file.toLowerCase().endsWith('.jpeg') ||
@@ -161,7 +146,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
         return;
       }
 
-      loadImageFiles(
+    loadImageFiles(
         dirPath,
         fileNames,
         getSequenceBasePath(seqname, basepath),
@@ -307,7 +292,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     }
   );
 
-  ipcMain.on('update_images', async (_event: IpcMainEvent, sequence: any) => {
+  ipcMain.on('update_images', async (_event: IpcMainEvent, sequence: any, originalSequenceName: string) => {
     // eslint-disable-next-line global-require
     const { buildGPX, GarminBuilder } = require('gpx-builder');
     const { Point } = GarminBuilder.MODELS;
@@ -347,6 +332,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       mainWindow,
       points,
       settings,
+      originalSequenceName,
       logo,
       basepath
     );

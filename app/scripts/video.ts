@@ -342,7 +342,7 @@ export function splitVideoToImage(
             duration,
             outputPath,
             (err: any, filenames: string[]) => {
-              console.log(outputPath);
+              console.log(filenames);
               console.log(err);
               if (err) {
                 cb(err);

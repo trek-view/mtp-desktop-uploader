@@ -8,7 +8,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import Map from '../components/Map';
 
-import { setCurrentStep, selPoints } from './slice';
+import { setCurrentStep, selPoints, selSequence, setMultiPartProcessingMode } from './slice';
 
 import fs from 'fs';
 import path from 'path';
@@ -40,6 +40,8 @@ export default function RequireModify() {
 
   const points = useSelector(selPoints);
 
+  const sequence = useSelector(selSequence);
+
   const classes = useStyles();
 
   const [state, setState] = React.useState({
@@ -68,13 +70,19 @@ export default function RequireModify() {
   // };
 
   const requireModify = () => {
+    
+    if (sequence.points.length > 500) {
+        dispatch(setMultiPartProcessingMode(true));
+      } else {
+        dispatch(setMultiPartProcessingMode(false));
+      }
+
     fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
       if (error) {
         console.log(error);
         dispatch(setCurrentStep('modifySpace'));
         return;
       }
-      console.log(data);
       var settings = JSON.parse(data);
       if (settings.modify_gps_spacing === true) {
         dispatch(setCurrentStep('modifySpace'));

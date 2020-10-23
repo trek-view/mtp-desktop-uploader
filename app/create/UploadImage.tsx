@@ -13,7 +13,10 @@ import {
   setSequenceImagePath,
   selSequenceAttachType,
   selSequenceName,
+  setMultiPartProcessingMode,
 } from './slice';
+
+import fs from 'fs';
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -51,8 +54,29 @@ export default function SequenceUploadImage() {
     );
 
     if (result) {
-      ipcRenderer.send(channelName, result[0], seqName, corrupted);
-      dispatch(setSequenceImagePath(result[0]));
+      const dirPath = result[0];
+
+      let fileNames = fs
+        .readdirSync(dirPath, { withFileTypes: true })
+        .filter(dirent => dirent.isFile())
+        .map(dirent => dirent.name);
+
+      fileNames = fileNames.filter((file: string) => {
+        return file.toLowerCase().endsWith('.png') ||
+          file.toLowerCase().endsWith('.jpeg') ||
+          file.toLowerCase().endsWith('.jpg')
+      });
+
+      const imageLength = fileNames.length;
+
+      if (imageLength > 10) {
+        dispatch(setMultiPartProcessingMode(true));
+      } else {
+        dispatch(setMultiPartProcessingMode(false));
+      }
+
+      ipcRenderer.send(channelName, dirPath, seqName, corrupted);
+      dispatch(setSequenceImagePath(dirPath));
     }
   };
 
@@ -95,6 +119,13 @@ export default function SequenceUploadImage() {
         for (var i = 0; i < fileNames.length; i++) {
           fileNames[i] = fileNames[i].replace(/^.*[\\\/]/, '');
         }
+
+        if (fileNames.length > 500) {
+          dispatch(setMultiPartProcessingMode(true));
+        } else {
+          dispatch(setMultiPartProcessingMode(false));
+        }
+
         ipcRenderer.send(channelName, path, fileNames, seqName, corrupted);
         dispatch(setSequenceImagePath(path));
       } else {

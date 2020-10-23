@@ -54,6 +54,9 @@ const initialState = {
   },
   points: [],
   passedPoints: {},
+  multiPartProcessing: false,
+  numberOfDivisions: 1,
+  completedDivisions: 0,
   error: null,
 };
 
@@ -294,6 +297,15 @@ const createSequenceSlice = createSlice({
     setGooglePlace: (state, { payload }) => {
       state.steps.googlePlace = payload;
     },
+    setMultiPartProcessingMode: (state, { payload }) => {
+      state.multiPartProcessing = payload;
+    },
+    setNumberOfDivisions: (state, { payload }) => {
+      state.numberOfDivisions = payload;
+    },
+    setCompletedDivisions: (state, { payload }) => {
+      state.completedDivisions = payload;
+    },
   },
 });
 
@@ -335,7 +347,9 @@ export const {
   setDestination,
   setCopyright,
   setGooglePlace,
-
+  setMultiPartProcessingMode,
+  setNumberOfDivisions,
+  setCompletedDivisions,
   resetPoints,
 } = createSequenceSlice.actions;
 
@@ -610,3 +624,12 @@ export const isRequiredNadir = (state: RootState) =>
 
 export const selGooglePlace = (state: RootState) =>
   state.create.steps.googlePlace;
+
+export const isMultiPartProcessing = (state: RootState) =>
+state.create.multiPartProcessing;
+
+export const selNumberOfDivisions = (state: RootState) =>
+state.create.numberOfDivisions;
+
+export const selCompletedDivisions = (state: RootState) =>
+state.create.completedDivisions;

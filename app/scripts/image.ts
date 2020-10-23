@@ -475,6 +475,7 @@ export function writeExifTags(
 export function writeNadirImages(
   item: IGeoPoint,
   settings: any,
+  originalSequenceName: string,
   description: Description,
   basepath: string,
   logo: any
@@ -483,7 +484,7 @@ export function writeNadirImages(
     if (settings.nadirPath !== '' && logo) {
       const filename = item.Image || '';
       const existingfile = getSequenceImagePath(
-        settings.name,
+        originalSequenceName,
         filename,
         basepath
       );
@@ -537,6 +538,7 @@ export function updateImages(
   win: BrowserWindow,
   updatedPoints: IGeoPoint[],
   settings: any,
+  originalSequenceName: string,
   logo: any,
   basepath: string
 ): Promise<Result> {
@@ -693,7 +695,7 @@ export function updateImages(
             (cb: CallableFunction) => {
               const filename = item.Image || '';
               const inputfile = getSequenceImagePath(
-                settings.name,
+                originalSequenceName,
                 filename,
                 basepath
               );
@@ -708,7 +710,7 @@ export function updateImages(
                 .catch((err) => cb(err));
             },
             (cb: CallableFunction) => {
-              writeNadirImages(item, settings, desc, basepath, logo)
+              writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo)
                 .then(() => cb())
                 .catch((err) => {
                   if (err) {

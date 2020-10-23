@@ -19,6 +19,7 @@ import {
   setProcessStep,
   setCurrentStep,
   isRequiredNadir,
+  setNumberOfDivisions,
 } from './slice';
 
 import { selIntegrations } from '../base/slice';
@@ -29,10 +30,23 @@ interface State {
   [key: string]: boolean;
 }
 
+Array.prototype.division = function (n: number) {
+  var arr = this;
+  var len = arr.length;
+  var cnt = Math.floor(len / n);
+  var tmp = [];
+
+  for (var i = 0; i <= cnt; i++) {
+    tmp.push(arr.splice(0, n));
+  }
+
+  return tmp;
+}
+
 export default function Destination() {
   const dispatch = useDispatch();
   const integrations = useSelector(selIntegrations);
-  const sequence = useSelector(selSequence);
+  let sequence = useSelector(selSequence);
   const [state, setState] = useState<State>({});
   const isrequirednadir = useSelector(isRequiredNadir);
   const methodConfig = useSelector(selSequenceMethodConfig);
@@ -47,7 +61,30 @@ export default function Destination() {
     } else if (sequence.points.length) {
       dispatch(setDestination(state));
       dispatch(setProcessStep('final'));
-      ipcRenderer.send('update_images', sequence);
+      if (sequence.multiPartProcessing == true) {
+        const multiPartPoints = sequence.points.map((x) => x);
+        let dividedPoints = multiPartPoints.division(500);
+        const multiPartDestination = sequence.passedPoints.destination.map((x) => x);
+        let dividedDestination = multiPartDestination.division(500);
+        const multiPartGpx = sequence.passedPoints.gpx.map((x) => x);
+        let dividedGpx = multiPartGpx.division(500);
+        const multiPartRequireModify = sequence.passedPoints.requireModify.map((x) => x);
+        let dividedRequireModify = multiPartRequireModify.division(500);
+        dispatch(setNumberOfDivisions(dividedPoints.length));
+        for (var i = 1; i <= dividedPoints.length; i++) {
+          const sequenceJson = JSON.stringify(sequence);
+          let partSequence = JSON.parse(sequenceJson);
+          partSequence.points = dividedPoints[i - 1];
+          partSequence.passedPoints.destination = dividedDestination[i - 1];
+          partSequence.passedPoints.gpx = dividedGpx[i - 1];
+          partSequence.passedPoints.requireModify = dividedRequireModify[i - 1];
+          partSequence.steps.name = sequence.steps.name + "_part" + i.toString();
+          ipcRenderer.send('update_images', partSequence, sequence.steps.name);
+        }
+      } else {
+        dispatch(setNumberOfDivisions(1));
+        ipcRenderer.send('update_images', sequence, sequence.steps.name);
+      }
     } else {
       dispatch(setError('There is no photos.'));
     }

@@ -50,6 +50,8 @@ import Final from './Final';
 
 import routes from '../constants/routes.json';
 import {
+  selNumberOfDivisions,
+  selCompletedDivisions,
   selSequenceName,
   selPrevStep,
   selCurrentStep,
@@ -62,6 +64,7 @@ import {
   setError,
   setInit,
   selSequence,
+  setCompletedDivisions,
 } from './slice';
 
 import { setAddSeq } from '../list/slice';
@@ -113,6 +116,8 @@ export default function CreatePageWrapper() {
   const currentStep = useSelector(selCurrentStep);
   const name = useSelector(selSequenceName);
   const sequence = useSelector(selSequence);
+  const numberOfDivisions = useSelector(selNumberOfDivisions);
+  const completedDivisions = useSelector(selCompletedDivisions);
   const error = useSelector(selError);
   const dispatch = useDispatch();
   const [state, setState] = useState<State>({
@@ -135,7 +140,13 @@ export default function CreatePageWrapper() {
 
     ipcRenderer.on('add-seq', (_event: IpcRendererEvent, seq) => {
       dispatch(setAddSeq(seq));
-      dispatch(setCurrentStep('final'));
+      let completed = completedDivisions + 1;
+      console.log(completed);
+      console.log(numberOfDivisions);
+      if (completed == numberOfDivisions) {
+        dispatch(setCurrentStep('final'));
+      }
+      dispatch(setCompletedDivisions(completed));
     });
 
     ipcRenderer.on('loaded_gpx', (_event: IpcRendererEvent, points) => {
