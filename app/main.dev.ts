@@ -271,7 +271,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       mainWindow.focus();
-      // mainWindow.toggleDevTools(); // temporary added for developing purpose
+      mainWindow.toggleDevTools(); // temporary added for developing purpose
       var tagName = await checkForUpdate();
       if (tagName != undefined && tagName != '' && tagName.length > 0) {
         var hasAsset = await getDownloadAssetUrl(tagName);
