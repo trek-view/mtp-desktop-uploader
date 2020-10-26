@@ -130,6 +130,14 @@
         "secondary_parent": "",
         "mtp_api": "Rock Climbing",
         "strava_activity": "RockClimbing"
+      },
+      {
+        "type": "Wheelchair",
+        "icon": "fas fa-wheelchair",
+        "description": "",
+        "secondary_parent": "",
+        "mtp_api": "Wheelchair",
+        "strava_activity": false
       }
     ]
   },
