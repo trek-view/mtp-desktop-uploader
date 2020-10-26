@@ -301,7 +301,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.19",
-    "video.js": "^7.10.1"
+    "video.js": "7.9.7"
   },
   "devEngines": {
     "node": ">=7.x",
