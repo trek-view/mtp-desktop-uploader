@@ -74,7 +74,7 @@ const checkForUpdate = async () => {
 
       latestVersion = releases[0].tag_name.substring(1);
       console.log('Latest release version: ' + latestVersion);
-      const appVersion = process.env.npm_package_version;
+      const appVersion = require('./package.json').version;
       console.log('Current version: ' + appVersion);
       var cmp = require('semver-compare');
       if (cmp(latestVersion, appVersion) > 0)
@@ -180,7 +180,7 @@ const installNewUpdate = (filePath: string) => {
       }
       app.quit();
     });
-  } else {
+  } else if (process.platform === 'darwin') {
     const { exec } = require("child_process");
     exec('hdiutil attach ' + filePath, (error: { message: any; }, stdout: any, stderr: any) => {
       if (error) { return; }
