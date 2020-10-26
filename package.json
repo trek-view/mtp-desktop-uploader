@@ -54,7 +54,7 @@
       "static",
       "cameras",
       "integrations",
-      "binary", 
+      "binary",
       "settings.json",
       ""
     ],
@@ -261,6 +261,8 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@octokit/rest": "^18.0.6",
+    "@pnpm/logger": "^3.2.2",
+    "@pnpm/shamefully-flatten": "^4.0.0",
     "@reduxjs/toolkit": "^1.4.0",
     "async": "^3.2.0",
     "axios": "^0.20.0",
@@ -298,7 +300,8 @@
     "react-script-tag": "^1.1.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "video.js": "^7.10.1"
   },
   "devEngines": {
     "node": ">=7.x",
