@@ -215,9 +215,9 @@ export default function ListPageWrapper() {
     });
   };
 
-  state.totalPages = Math.ceil(seqs.length / 3);
-  let startIndex = state.currentPage * 3;
-  let endIndex = state.currentPage * 3 + 3;
+  state.totalPages = Math.ceil(seqs.length / 10);
+  let startIndex = state.currentPage * 10;
+  let endIndex = state.currentPage * 10 + 10;
   endIndex = endIndex > seqs.length ? seqs.length : endIndex;
 
   seqs.slice(startIndex, endIndex).map((item: Summary) => {
@@ -359,7 +359,7 @@ export default function ListPageWrapper() {
                     create one? As if you needed an excuse for an adventure!
                   </Typography>
                 )}
-              {seqs.length > 3 ?
+              {seqs.length > 10 ?
                 <Pager
                   total={state.totalPages}
                   current={state.currentPage}
