@@ -38,7 +38,7 @@ export default function SequenceProcessPage() {
   );
   const sequence = useSelector(selSequence);
   if (sequence.multiPartProcessing == true) {
-    name = name + "_part$ ($: index of each part)";
+    name = name + "_part_$ ($: index of each part)";
   }
 
   useEffect(() => {

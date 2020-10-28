@@ -21,6 +21,10 @@ import {
 } from './slice';
 import { importGpx } from '../scripts/utils';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 export default function SequenceStartTime() {
   const dispatch = useDispatch();
   const startTime = useSelector(selModifiedStartTime);
@@ -39,6 +43,15 @@ export default function SequenceStartTime() {
     const newpoints = importGpx(points, gpxPoints, time);
     dispatch(setSequencePoints(newpoints));
     if (!allGeoTagged) {
+      fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'),
+        JSON.stringify({
+          'modify_gps_spacing': false,
+          'remove_outlier': false,
+          'modify_heading': false,
+          'add_copyright': false,
+          'add_nadir': false,
+        })
+      );
       dispatch(setCurrentStep('requireModify'));
     } else {
       dispatch(setCurrentStep('modifySpace'));

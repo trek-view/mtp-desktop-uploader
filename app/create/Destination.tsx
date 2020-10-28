@@ -78,7 +78,7 @@ export default function Destination() {
           partSequence.passedPoints.destination = dividedDestination[i - 1];
           partSequence.passedPoints.gpx = dividedGpx[i - 1];
           partSequence.passedPoints.requireModify = dividedRequireModify[i - 1];
-          partSequence.steps.name = sequence.steps.name + "_part" + i.toString();
+          partSequence.steps.name = sequence.steps.name + "_part_" + i.toString();
           ipcRenderer.send('update_images', partSequence, sequence.steps.name);
         }
       } else {

@@ -687,7 +687,7 @@ export function updateImages(
         sendToClient(
           win,
           'loaded_message',
-          `Start updating file: ${item.Image}`
+          `Updating file: ${item.Image}`
         );
 
         const desc: Description = descriptions[item.id];
@@ -748,7 +748,7 @@ export function updateImages(
               sendToClient(
                 win,
                 'loaded_message',
-                `End updating file: ${item.Image}`
+                `Updating file: ${item.Image}`
               );
               next();
             }

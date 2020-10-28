@@ -50,32 +50,45 @@ export default function RequireModify() {
     modify_heading: false,
     add_copyright: false,
     add_nadir: false,
+    buttonName: 'Skip Advanced Settings',
   });
 
   const handleChange = (event: { target: { name: any; checked: any; }; }) => {
-    const updateArr = { ...state, [event.target.name]: event.target.checked };
+    let updateArr = { ...state, [event.target.name]: event.target.checked };
+    if (updateArr.modify_gps_spacing
+      || updateArr.remove_outlier
+      || updateArr.modify_heading
+      || updateArr.add_copyright
+      || updateArr.add_nadir) {
+      updateArr.buttonName = "Advanced Settings";
+    } else {
+      updateArr.buttonName = "Skip Advanced Settings";
+    }
+
     setState(updateArr);
-    fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 
-    JSON.stringify({
+
+    fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'),
+      JSON.stringify({
         'modify_gps_spacing': updateArr.modify_gps_spacing,
         'remove_outlier': updateArr.remove_outlier,
         'modify_heading': updateArr.modify_heading,
         'add_copyright': updateArr.add_copyright,
         'add_nadir': updateArr.add_nadir,
       })
-    )};
+    )
+  };
 
   // const confirmMode = () => {
   //   dispatch(setCurrentStep('destination'));
   // };
 
   const requireModify = () => {
-    
+
     if (sequence.points.length > 500) {
-        dispatch(setMultiPartProcessingMode(true));
-      } else {
-        dispatch(setMultiPartProcessingMode(false));
-      }
+      dispatch(setMultiPartProcessingMode(true));
+    } else {
+      dispatch(setMultiPartProcessingMode(false));
+    }
 
     fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
       if (error) {
@@ -147,7 +160,7 @@ export default function RequireModify() {
             onClick={requireModify}
             variant="contained"
           >
-            Advanced settings
+            {state.buttonName}
           </Button>
         </Box>
       </Grid>

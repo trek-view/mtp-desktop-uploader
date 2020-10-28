@@ -4,6 +4,10 @@ import dayjs from 'dayjs';
 import { AppThunk, RootState } from '../store';
 import { IGeoPoint } from '../types/IGeoPoint';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 const initialState = {
   step: {
     current: 'name',
@@ -71,11 +75,11 @@ const createSequenceSlice = createSlice({
         state.step.current === 'processPage' || state.step.current === 'gpx'
           ? state.step.passed
           : [
-              ...state.step.passed.filter(
-                (step) => step !== state.step.current
-              ),
-              state.step.current,
-            ];
+            ...state.step.passed.filter(
+              (step) => step !== state.step.current
+            ),
+            state.step.current,
+          ];
       state.step = {
         current: payload,
         passed,
@@ -97,6 +101,16 @@ const createSequenceSlice = createSlice({
           ...state.steps,
           [current]: initialState.steps[current],
         };
+        if (state.step.passed[passedlength - 1] == 'requireModify') {
+          fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'),
+            JSON.stringify({
+              'modify_gps_spacing': false,
+              'remove_outlier': false,
+              'modify_heading': false,
+              'add_copyright': false,
+              'add_nadir': false,
+            }));
+        }
         state.step = {
           ...state.step,
           current: state.step.passed[passedlength - 1],
@@ -626,10 +640,10 @@ export const selGooglePlace = (state: RootState) =>
   state.create.steps.googlePlace;
 
 export const isMultiPartProcessing = (state: RootState) =>
-state.create.multiPartProcessing;
+  state.create.multiPartProcessing;
 
 export const selNumberOfDivisions = (state: RootState) =>
-state.create.numberOfDivisions;
+  state.create.numberOfDivisions;
 
 export const selCompletedDivisions = (state: RootState) =>
-state.create.completedDivisions;
+  state.create.completedDivisions;

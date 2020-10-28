@@ -18,6 +18,10 @@ import {
   setError,
 } from './slice';
 
+import fs from 'fs';
+import path from 'path';
+const electron = require('electron');
+
 import { IGeoPoint } from '../types/IGeoPoint';
 
 const { ipcRenderer, remote } = window.require('electron');
@@ -31,6 +35,15 @@ export default function SequenceUploadGpx() {
 
   useEffect(() => {
     if (!required && !importgpx && proppoints.length) {
+      fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'),
+        JSON.stringify({
+          'modify_gps_spacing': false,
+          'remove_outlier': false,
+          'modify_heading': false,
+          'add_copyright': false,
+          'add_nadir': false,
+        })
+      );
       dispatch(setCurrentStep('requireModify'));
     }
   });
@@ -66,6 +79,15 @@ export default function SequenceUploadGpx() {
       if (required) {
         dispatch(setCurrentStep('modifySpace'));
       } else {
+        fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'),
+          JSON.stringify({
+            'modify_gps_spacing': false,
+            'remove_outlier': false,
+            'modify_heading': false,
+            'add_copyright': false,
+            'add_nadir': false,
+          })
+        );
         dispatch(setCurrentStep('requireModify'));
       }
     } else {
@@ -84,7 +106,7 @@ export default function SequenceUploadGpx() {
                 ? 'There are some images that have no geodata.'
                 : '0 photos have no geodata.'
               : ''
-          } Please upload the GPS tracks Following formats supported: GPX.`}
+            } Please upload the GPS tracks Following formats supported: GPX.`}
         </Typography>
       </Grid>
       <Grid
