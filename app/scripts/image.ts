@@ -22,6 +22,7 @@ import {
   getSequenceImagePath,
   OutputType,
   getSequenceOutputFilePath,
+  getSequenceBasePath, 
   discardPointsBySeconds,
   parseExifDateTime,
   sendToClient,
@@ -699,6 +700,27 @@ export function updateImages(
                 filename,
                 basepath
               );
+              if (settings.name != originalSequenceName) {
+                const outputOriginalFile = getSequenceImagePath(
+                  settings.name,
+                  filename,
+                  basepath
+                );
+                const outputOriginalSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'originals');
+                fs.exists(outputOriginalSeqPath, (existed: boolean) => {
+                  if (!existed) {
+                    fs.mkdir(outputOriginalSeqPath, (err) => {
+                      if (err) {
+                        console.log(err);
+                      }
+                    });
+                  }
+                });
+                fs.copyFile(inputfile, outputOriginalFile, (err: any) => {
+                  if (err) console.log(err);
+                });
+              }
+              
               const outputfile = getSequenceOutputFilePath(
                 settings.name,
                 filename,
