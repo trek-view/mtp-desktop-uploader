@@ -230,10 +230,17 @@ export default function ListPageWrapper() {
       (state.capturedEndDate === '' ||
         dayjs(state.capturedEndDate).isAfter(dayjs(item.captured)))
     ) {
+      let beautifiedName = item.name.split('_').join(' ');
+      beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      
+      let cItem = {
+        ...item,
+        name: beautifiedName,
+      }
       items.push(
         <Sequence
-          data={item}
-          key={item.id}
+          data={cItem}
+          key={cItem.id}
           onDelete={removeSeq}
           onSelect={selectSeq}
         />
