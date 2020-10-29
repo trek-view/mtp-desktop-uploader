@@ -232,15 +232,11 @@ export default function ListPageWrapper() {
     ) {
       let beautifiedName = item.name.split('_').join(' ');
       beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-      
-      let cItem = {
-        ...item,
-        name: beautifiedName,
-      }
       items.push(
         <Sequence
-          data={cItem}
-          key={cItem.id}
+          displayName={beautifiedName}
+          data={item}
+          key={item.id}
           onDelete={removeSeq}
           onSelect={selectSeq}
         />

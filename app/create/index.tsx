@@ -143,7 +143,7 @@ export default function CreatePageWrapper() {
       let completed = completedDivisions + 1;
       console.log(completed);
       console.log(numberOfDivisions);
-      if (completed == numberOfDivisions) {
+      if (completed >= numberOfDivisions) {
         dispatch(setCurrentStep('final'));
       }
       dispatch(setCompletedDivisions(completed));

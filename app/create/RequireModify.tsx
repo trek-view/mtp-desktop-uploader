@@ -8,7 +8,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import Map from '../components/Map';
 
-import { setCurrentStep, selPoints, selSequence, setMultiPartProcessingMode } from './slice';
+import { setCurrentStep, selPoints, selSequence, setMultiPartProcessingMode, setCompletedDivisions } from './slice';
 
 import fs from 'fs';
 import path from 'path';
@@ -83,6 +83,8 @@ export default function RequireModify() {
   // };
 
   const requireModify = () => {
+    
+    setCompletedDivisions(0);
 
     if (sequence.points.length > 500) {
       dispatch(setMultiPartProcessingMode(true));

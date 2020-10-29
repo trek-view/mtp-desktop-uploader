@@ -64,11 +64,12 @@ const useStyles = makeStyles((theme) => ({
 
 interface Props {
   data: Summary;
+  displayName: string;
   onDelete: CallableFunction;
   onSelect: CallableFunction;
 }
 
-export default function Sequence({ data, onDelete, onSelect }: Props) {
+export default function Sequence({ data, displayName, onDelete, onSelect }: Props) {
   const classes = useStyles();
 
   const basepath = useSelector(selBasePath);
@@ -143,7 +144,7 @@ export default function Sequence({ data, onDelete, onSelect }: Props) {
           <Grid container className={classes.contentWrapper}>
             <Grid xs={7} item>
               <Typography variant="h5" color="primary" align="left">
-                {data.name}
+                {displayName}
               </Typography>
               <div className={classes.destinationWrapper}>
                 {destinationIcons}
