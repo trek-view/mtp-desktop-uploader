@@ -264,7 +264,7 @@ export function loadImageFiles(
       (cb1: CallableFunction) => {
         fs.exists(outputpath, (existed: boolean) => {
           if (!existed) {
-            fs.mkdir(outputpath, (err) => {
+            fs.mkdir(outputpath, {recursive: true}, (err) => {
               if (err) {
                 cb1(err);
               } else cb1(null);
@@ -289,7 +289,7 @@ export function loadImageFiles(
       },
       (cb1: CallableFunction) => {
         const originalpath = path.join(outputpath, 'originals');
-        fs.mkdir(originalpath, (err) => {
+        fs.mkdir(originalpath, {recursive: true}, (err) => {
           if (err) {
             cb1(err);
           } else cb1(null, files, dirPath, originalpath, corrupedCheck);
@@ -709,7 +709,7 @@ export function updateImages(
                 const outputOriginalSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'originals');
                 fs.exists(outputOriginalSeqPath, (existed: boolean) => {
                   if (!existed) {
-                    fs.mkdir(outputOriginalSeqPath, (err) => {
+                    fs.mkdir(outputOriginalSeqPath, {recursive: true}, (err) => {
                       if (err) {
                         console.log(err);
                       }

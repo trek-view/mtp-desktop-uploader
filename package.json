@@ -55,8 +55,7 @@
       "cameras",
       "integrations",
       "binary",
-      "settings.json",
-      ""
+      "settings.json"
     ],
     "dmg": {
       "contents": [

@@ -72,6 +72,7 @@ import Logo from '../components/Logo';
 import Wrapper from '../components/Wrapper';
 import RequireModify from './RequireModify';
 import GooglePlace from './GooglePlace';
+import { getSequenceBasePath, removeDirectory } from '../scripts/utils';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -138,12 +139,14 @@ export default function CreatePageWrapper() {
       }
     });
 
-    ipcRenderer.on('add-seq', (_event: IpcRendererEvent, seq) => {
+    ipcRenderer.on('add-seq', (_event: IpcRendererEvent, seq, originalSequenceName, basepath) => {
       dispatch(setAddSeq(seq));
       let completed = completedDivisions + 1;
-      console.log(completed);
-      console.log(numberOfDivisions);
+      console.log("Completed " + completed + " out of " + numberOfDivisions);
       if (completed >= numberOfDivisions) {
+        if (numberOfDivisions > 1) {
+          removeDirectory(getSequenceBasePath(originalSequenceName, basepath));
+        }
         dispatch(setCurrentStep('final'));
       }
       dispatch(setCompletedDivisions(completed));

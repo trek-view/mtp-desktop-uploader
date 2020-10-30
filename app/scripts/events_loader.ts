@@ -47,7 +47,13 @@ import loadCameras from './camera';
 import loadDefaultNadir from './nadir';
 
 export default (mainWindow: BrowserWindow, app: App) => {
-  const basepath = app.getAppPath();
+  let basepath = app.getPath('home');
+  const mtpPath = path.join(basepath, 'MTP');
+  if (!fs.existsSync(mtpPath)) {
+    fs.mkdirSync(mtpPath, {recursive: true});
+  }
+  basepath = path.resolve(basepath, 'MTP', 'app');
+  // const basepath = app.getAppPath();
 
   ipcMain.on('set_token', (_event: IpcMainEvent, key: string, token: any) => {
     tokenStore.set(key, token);
@@ -81,13 +87,13 @@ export default (mainWindow: BrowserWindow, app: App) => {
       corrupted: boolean
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
-        fs.mkdirSync(resultdirectorypath(app));
+        fs.mkdirSync(resultdirectorypath(app), {recursive: true});
       }
       const sequencebasepath = getSequenceBasePath(seqname, basepath);
       if (fs.existsSync(sequencebasepath)) {
         await rimraf.sync(sequencebasepath);
       }
-      fs.mkdirSync(sequencebasepath);
+      fs.mkdirSync(sequencebasepath, {recursive: true});
 
       let outputPath = getOriginalBasePath(seqname, basepath);
       //outputPath = outputPath.replace(/ /g, '%20');
@@ -111,7 +117,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
         try {
-          fs.mkdirSync(resultdirectorypath(app));
+          fs.mkdirSync(resultdirectorypath(app), {recursive: true});
         } catch (e) {
           errorHandler(mainWindow, e);
           return;
@@ -179,7 +185,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
         try {
-          fs.mkdirSync(resultdirectorypath(app));
+          fs.mkdirSync(resultdirectorypath(app), {recursive: true});
         } catch (e) {
           errorHandler(mainWindow, e);
           return;
@@ -384,7 +390,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
 
       await removeTempFiles(app);
 
-      return sendToClient(mainWindow, 'add-seq', createdData2List(result));
+      return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
     if (error) {
       return errorHandler(mainWindow, error);
@@ -393,7 +399,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
 
   ipcMain.on('sequences', async (_event: IpcMainEvent) => {
     if (!fs.existsSync(resultdirectorypath(app))) {
-      fs.mkdirSync(resultdirectorypath(app));
+      fs.mkdirSync(resultdirectorypath(app), {recursive: true});
     }
     const sequencesDirectories = fs
       .readdirSync(resultdirectorypath(app))

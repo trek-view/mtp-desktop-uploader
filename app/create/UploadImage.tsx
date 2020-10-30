@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
-import { Grid, FormControlLabel, Checkbox } from '@material-ui/core';
+import { Grid, FormControlLabel, Checkbox, Card, CardContent, Box } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
+
+// import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import { OpenDialogSyncOptions } from 'electron';
 
@@ -17,6 +19,10 @@ import {
 } from './slice';
 
 import fs from 'fs';
+// import path from 'path';
+// import { selBasePath } from '../base/slice';
+// import { getSequenceBasePath } from '../scripts/utils';
+// const electron = require('electron');
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -24,8 +30,12 @@ export default function SequenceUploadImage() {
   const dispatch = useDispatch();
   const attachType = useSelector(selSequenceAttachType);
   const seqName = useSelector(selSequenceName);
+  // const basepath = useSelector(selBasePath);
+  // const seqPath = getSequenceBasePath(seqName, basepath);
+  // const parentPath = path.resolve(seqPath, `../../`);
 
   const [corrupted, setCorrupted] = useState<boolean>(false);
+  // const [outputPath, setOutputPath] = useState<string>(parentPath);
 
   const openFileDialog = async () => {
     const parentWindow = remote.getCurrentWindow();
@@ -139,6 +149,25 @@ export default function SequenceUploadImage() {
     setCorrupted(event.target.checked);
   };
 
+  // const changeDefaultOutputPath = () => {
+  //   const parentWindow = remote.getCurrentWindow();
+  //   const result = remote.dialog.showOpenDialogSync(
+  //     parentWindow, {
+  //       properties: ['openDirectory'],
+  //     }
+  //   );
+
+  //   if (result) {
+  //     const dirPath = result[0];
+  //     setOutputPath(dirPath);
+  //     fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'path.json'),
+  //       JSON.stringify({
+  //         'output_path': dirPath,
+  //       })
+  //     );
+  //   }
+  // };
+
   const corrupedCheck = (
     <Checkbox
       checked={corrupted}
@@ -150,47 +179,83 @@ export default function SequenceUploadImage() {
   return (
     <>
       <Grid item xs={12}>
-        <Typography variant="h6" align="center" color="textSecondary">
-          {`Please upload the ${attachType === 'video' ? attachType : 'timelapse photos'
-            }`}
-        </Typography>
-
-        <FormControlLabel
-          color="primary"
-          control={corrupedCheck}
-          label="Check for corrupted (black) images (only recommended you tick this box if you suspect the file(s) contain black and/or visually corrupted frames)"
-        />
+        <Card>
+          <CardContent>
+            <Typography variant="h6" align="center" color="textPrimary">
+              {`Please upload the ${attachType === 'video' ? attachType : 'timelapse photos'
+                }`}
+            </Typography>
+            <Typography paragraph>
+            </Typography>
+            <FormControlLabel
+              color="primary"
+              control={corrupedCheck}
+              label="Check for corrupted (black) images (only recommended you tick this box if you suspect the file(s) contain black and/or visually corrupted frames)"
+            />
+            <Typography paragraph>
+            </Typography>
+            <Grid item xs={12}>
+              {
+                attachType === 'video' ? null :
+                  <Button
+                    onClick={openFileDialog}
+                    color="primary"
+                    endIcon={<CloudUploadIcon />}
+                    variant="contained"
+                  >
+                    Select Image Folder
+                </Button>
+              }
+            </Grid>
+            <Typography paragraph>
+            </Typography>
+            <Grid item xs={12}>
+              {
+                attachType === 'video' ? <Button
+                  onClick={openFileDialog2}
+                  color="primary"
+                  endIcon={<CloudUploadIcon />}
+                  variant="contained"
+                >
+                  Select Video File
+                </Button> :
+                  <Button
+                    onClick={openFileDialog2}
+                    color="primary"
+                    endIcon={<CloudUploadIcon />}
+                    variant="contained"
+                  >
+                    Select Image Files
+               </Button>
+              }
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
-      {attachType === 'video' ? null :
-        <Grid item xs={12}>
-          <Button
-            onClick={openFileDialog}
-            color="primary"
-            endIcon={<CloudUploadIcon />}
-            variant="contained"
-          >
-            Select Image Folder
-        </Button>
-        </Grid>}
-      <Grid item xs={12}>
-        {attachType === 'video' ? <Button
-          onClick={openFileDialog2}
-          color="primary"
-          endIcon={<CloudUploadIcon />}
-          variant="contained"
-        >
-          Select Video File
-        </Button> :
-          <Button
-            onClick={openFileDialog2}
-            color="primary"
-            endIcon={<CloudUploadIcon />}
-            variant="contained"
-          >
-            Select Image Files
-        </Button>}
-      </Grid>
-      <Grid item xs={12} />
+      {/* <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Typography color="textPrimary" variant="h6">
+              If you want to change output path, please click the button below
+            </Typography>
+            <Typography paragraph>
+            </Typography>
+            <Box>
+              <Typography paragraph>
+                Output Path: {outputPath}
+              </Typography>
+              <Button
+                endIcon={<ChevronRightIcon />}
+                color="primary"
+                onClick={changeDefaultOutputPath}
+                variant="contained"
+              >
+                Change Output Path
+            </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid> */}
     </>
   );
 }
