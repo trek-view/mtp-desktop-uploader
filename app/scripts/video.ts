@@ -116,6 +116,20 @@ export function getGPSVideoData(tags: typeof Tags) {
       return obj;
     }, {});
 
+    commonData['Main:CroppedAreaImageWidthPixels'] = commonData['Main:SourceImageWidth'];
+    commonData['Main:CroppedAreaImageHeightPixels'] = commonData['Main:SourceImageHeight'];
+    
+    commonData['Main:FullPanoWidthPixels'] = commonData['Main:SourceImageWidth'];
+    commonData['Main:FullPanoHeightPixels'] = commonData['Main:SourceImageHeight'];
+    commonData['Main:CroppedAreaLeftPixels'] = commonData['Main:SourceImageWidth'];
+    commonData['Main:CroppedAreaTopPixels'] = commonData['Main:SourceImageHeight'];
+
+  const resultObj = {
+    dataList, 
+    commonData
+  };
+  console.log(resultObj);
+
   return {
     dataList,
     commonData,
@@ -290,7 +304,7 @@ export async function splitVideos(
   callback: CallableFunction
 ) {
   // eslint-disable-next-line new-cap
-
+  console.log("outputPath: " + outputPath);
   try {
     const process = new ffmpeg(inputPath);
     process.then((video: { fnExtractFrameToJPG: (arg0: string, arg1: { number: number; file_name: string; }, arg2: (err: any, files: string[]) => void) => void; }) => {
