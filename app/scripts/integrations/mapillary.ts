@@ -4,7 +4,7 @@ import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
 import Async from 'async';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, Debugger } from 'electron';
 
 import { Session } from '../../types/Session';
 import { Sequence } from '../../types/Result';
@@ -213,9 +213,13 @@ export const uploadImagesMapillary = (
           messageChannelName,
           `${item.Image} is uploading to Mapillary`
         );
-        const filepath = path.join(directoryPath, item.Image);
+        console.log("upload to mapiliary - item.Image: " + item.Image);
+        console.log("directoryPath: " + directoryPath);
+        const parts = directoryPath.split('\\');
+        const seqName = parts[parts.length - 2];
+        const filepath = path.join(directoryPath, seqName.replace(' ', '_') + "_" + item.Image);
 
-        uploadImage(filepath, item.Image, sessionData)
+        uploadImage(filepath, seqName.replace(' ', '_') + "_" + item.Image, sessionData)
           .then(() => next())
           .catch((e) => {
             console.log('UploadImage issue to Mapillary: ', e);

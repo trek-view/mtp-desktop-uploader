@@ -42,7 +42,9 @@ export const uploadImage = async (
   });
   const uploadReference = urlres.data;
   const { uploadUrl } = uploadReference;
-  const filepath = path.join(baseDirectory, item.Image);
+  const parts = baseDirectory.split('\\');
+  const seqName = parts[parts.length - 2];
+  const filepath = path.join(baseDirectory, seqName.replace(' ', '_') + "_" + item.Image);
   const data = fs.readFileSync(filepath);
 
   console.log(`Upload ${item.Image} to Google Street`);
@@ -59,7 +61,7 @@ export const uploadImage = async (
     data,
   });
 
-  console.log(`Update ${item.Image} to Google Street`);
+  console.log(`Update ${seqName.replace(' ', '_') + "_" + item.Image} to Google Street`);
 
   const metaData = {
     uploadReference,
