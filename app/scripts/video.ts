@@ -304,7 +304,6 @@ export async function splitVideos(
   callback: CallableFunction
 ) {
   // eslint-disable-next-line new-cap
-  console.log("outputPath: " + outputPath);
   try {
     const process = new ffmpeg(inputPath);
     process.then((video: { fnExtractFrameToJPG: (arg0: string, arg1: { number: number; file_name: string; }, arg2: (err: any, files: string[]) => void) => void; }) => {

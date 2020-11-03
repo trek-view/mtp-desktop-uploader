@@ -703,7 +703,7 @@ export function updateImages(
               if (settings.name != originalSequenceName) {
                 const outputOriginalFile = getSequenceImagePath(
                   settings.name,
-                  filename,
+                  "MTPU_" + settings.name + "_" + filename,
                   basepath
                 );
                 const outputOriginalSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'originals');
@@ -723,7 +723,7 @@ export function updateImages(
               
               const outputfile = getSequenceOutputFilePath(
                 settings.name,
-                filename,
+                "MTPU_" + settings.name + "_" + filename,
                 OutputType.raw,
                 basepath
               );
