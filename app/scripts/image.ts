@@ -491,7 +491,7 @@ export function writeNadirImages(
       );
       const outputfile = getSequenceOutputFilePath(
         settings.name,
-        filename,
+        settings.name.replace(' ', '_') + "_" + filename,
         OutputType.nadir,
         basepath
       );
@@ -703,7 +703,7 @@ export function updateImages(
               if (settings.name != originalSequenceName) {
                 const outputOriginalFile = getSequenceImagePath(
                   settings.name,
-                  "MTPU_" + settings.name + "_" + filename,
+                  settings.name.replace(' ', '_') + "_" + filename,
                   basepath
                 );
                 const outputOriginalSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'originals');
@@ -723,7 +723,7 @@ export function updateImages(
               
               const outputfile = getSequenceOutputFilePath(
                 settings.name,
-                "MTPU_" + settings.name + "_" + filename,
+                settings.name.replace(' ', '_') + "_" + filename,
                 OutputType.raw,
                 basepath
               );
