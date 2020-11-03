@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
-import { Grid, FormControlLabel, Checkbox, Card, CardContent, Box } from '@material-ui/core';
+import { Grid, FormControlLabel, Checkbox, Card, CardContent, Box, Container } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 
 // import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -179,58 +179,56 @@ export default function SequenceUploadImage() {
   return (
     <>
       <Grid item xs={12}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" align="center" color="textPrimary">
-              {`Please upload the ${attachType === 'video' ? attachType : 'timelapse photos'
-                }`}
-            </Typography>
-            <Typography paragraph>
-            </Typography>
-            <FormControlLabel
-              color="primary"
-              control={corrupedCheck}
-              label="Check for corrupted (black) images (only recommended you tick this box if you suspect the file(s) contain black and/or visually corrupted frames)"
-            />
-            <Typography paragraph>
-            </Typography>
-            <Grid item xs={12}>
-              {
-                attachType === 'video' ? null :
-                  <Button
-                    onClick={openFileDialog}
-                    color="primary"
-                    endIcon={<CloudUploadIcon />}
-                    variant="contained"
-                  >
-                    Select Image Folder
+        <Container>
+          <Typography variant="h6" align="center" color="textPrimary">
+            {`Please upload the ${attachType === 'video' ? attachType : 'timelapse photos'
+              }`}
+          </Typography>
+          <Typography paragraph>
+          </Typography>
+          <FormControlLabel
+            color="primary"
+            control={corrupedCheck}
+            label="Check for corrupted (black) images (only recommended you tick this box if you suspect the file(s) contain black and/or visually corrupted frames)"
+          />
+          <Typography paragraph>
+          </Typography>
+          <Grid item xs={12}>
+            {
+              attachType === 'video' ? null :
+                <Button
+                  onClick={openFileDialog}
+                  color="primary"
+                  endIcon={<CloudUploadIcon />}
+                  variant="contained"
+                >
+                  Select Image Folder
                 </Button>
-              }
-            </Grid>
-            <Typography paragraph>
-            </Typography>
-            <Grid item xs={12}>
-              {
-                attachType === 'video' ? <Button
+            }
+          </Grid>
+          <Typography paragraph>
+          </Typography>
+          <Grid item xs={12}>
+            {
+              attachType === 'video' ? <Button
+                onClick={openFileDialog2}
+                color="primary"
+                endIcon={<CloudUploadIcon />}
+                variant="contained"
+              >
+                Select Video File
+                </Button> :
+                <Button
                   onClick={openFileDialog2}
                   color="primary"
                   endIcon={<CloudUploadIcon />}
                   variant="contained"
                 >
-                  Select Video File
-                </Button> :
-                  <Button
-                    onClick={openFileDialog2}
-                    color="primary"
-                    endIcon={<CloudUploadIcon />}
-                    variant="contained"
-                  >
-                    Select Image Files
+                  Select Image Files
                </Button>
-              }
-            </Grid>
-          </CardContent>
-        </Card>
+            }
+          </Grid>
+        </Container>
       </Grid>
       {/* <Grid item xs={12}>
         <Card>

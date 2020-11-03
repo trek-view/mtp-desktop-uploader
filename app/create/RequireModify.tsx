@@ -131,42 +131,40 @@ export default function RequireModify() {
         <Map points={points} />
       </Grid>
       <Grid item xs={12}>
-        <Card>
-          <CardContent>
-            <Typography color="textPrimary" variant="h6">
-              Please tick upload settings to be changed:
+        <Container>
+          <Typography color="textPrimary" variant="h6">
+            Please tick upload settings to be changed:
             </Typography>
-            <Typography paragraph>
-            </Typography>
-            <Container maxWidth="xs">
-              <FormGroup>
-                <FormControlLabel control={<Checkbox checked={state.modify_gps_spacing} onChange={handleChange} name="modify_gps_spacing" color="primary" />} label="Modify GPS Spacing" />
-              </FormGroup>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox checked={state.remove_outlier} onChange={handleChange} name="remove_outlier" color="primary" />} label="Remove Outliers (or delete photos)" />
-              </FormGroup>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox checked={state.modify_heading} onChange={handleChange} name="modify_heading" color="primary" />} label="Modify Heading" />
-              </FormGroup>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox checked={state.add_copyright} onChange={handleChange} name="add_copyright" color="primary" />} label="Add Copyright Information" />
-              </FormGroup>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox checked={state.add_nadir} onChange={handleChange} name="add_nadir" color="primary" />} label="Add Nadir" />
-              </FormGroup>
-            </Container>
-            <Box className={classes.buttonWrapper}>
-              <Button
-                endIcon={<ChevronRightIcon />}
-                color="primary"
-                onClick={requireModify}
-                variant="contained"
-              >
-                {state.buttonName}
-              </Button>
-        </Box>
-          </CardContent>
-        </Card>
+          <Typography paragraph>
+          </Typography>
+          <Container maxWidth="xs">
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.modify_gps_spacing} onChange={handleChange} name="modify_gps_spacing" color="primary" />} label="Modify GPS Spacing" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.remove_outlier} onChange={handleChange} name="remove_outlier" color="primary" />} label="Remove Outliers (or delete photos)" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.modify_heading} onChange={handleChange} name="modify_heading" color="primary" />} label="Modify Heading" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.add_copyright} onChange={handleChange} name="add_copyright" color="primary" />} label="Add Copyright Information" />
+            </FormGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={state.add_nadir} onChange={handleChange} name="add_nadir" color="primary" />} label="Add Nadir" />
+            </FormGroup>
+          </Container>
+          <Box className={classes.buttonWrapper}>
+            <Button
+              endIcon={<ChevronRightIcon />}
+              color="primary"
+              onClick={requireModify}
+              variant="contained"
+            >
+              {state.buttonName}
+            </Button>
+          </Box>
+        </Container>
       </Grid>
     </>
   );
