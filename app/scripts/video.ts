@@ -118,11 +118,24 @@ export function getGPSVideoData(tags: typeof Tags) {
 
     commonData['Main:CroppedAreaImageWidthPixels'] = commonData['Main:SourceImageWidth'];
     commonData['Main:CroppedAreaImageHeightPixels'] = commonData['Main:SourceImageHeight'];
-    
+  
     commonData['Main:FullPanoWidthPixels'] = commonData['Main:SourceImageWidth'];
     commonData['Main:FullPanoHeightPixels'] = commonData['Main:SourceImageHeight'];
-    commonData['Main:CroppedAreaLeftPixels'] = commonData['Main:SourceImageWidth'];
-    commonData['Main:CroppedAreaTopPixels'] = commonData['Main:SourceImageHeight'];
+    commonData['Main:CroppedAreaLeftPixels'] = 0;
+    commonData['Main:CroppedAreaTopPixels'] = 0;
+
+    commonData['Main:InitialViewHeadingDegrees'] = 0;
+    commonData['Main:InitialViewPitchDegrees'] = 0;
+    commonData['Main:InitialViewRollDegrees'] = 0;
+    commonData['Main:InitialHorizontalFOVDegrees'] = 0;
+    commonData['Main:InitialCameraDolly'] = 0;
+    commonData['Main:PoseRollDegrees'] = 0;
+    commonData['Main:SourcePhotosCount'] = 0;
+    commonData['Main:FirstPhotoDate'] = parseExifDateTime(commonData['Main:CreateDate']);
+    commonData['Main:LastPhotoDate'] = parseExifDateTime(commonData['Main:CreateDate']);
+
+    commonData['Main:UsePanoramaViewer'] = 0.0;
+    commonData['Main:ExposureLockUsed'] = 0.0;
 
   const resultObj = {
     dataList, 

@@ -114,15 +114,17 @@ export default function ListPageWrapper() {
   });
 
   if (!loaded) {
+    console.log("loadsent");
     ipcRenderer.send('sequences');
   }
 
+  const items: JSX.Element[] = [];
+
   useEffect(() => {
-    ipcRenderer.once(
-      'loaded_sequences',
-      (_event: IpcRendererEvent, sequences: Summary[]) => {
+    ipcRenderer.once( 'loaded_sequences', (_event: IpcRendererEvent, sequences: Summary[]) => {
         dispatch(setEndLoad(sequences));
       }
+      
     );
     return () => {
       ipcRenderer.removeAllListeners('loaded_sequences');
@@ -191,8 +193,9 @@ export default function ListPageWrapper() {
       <div style={{ textAlign: 'right' }}>
         <Button
           onClick={() => {
-            dispatch(setRemoveSeq(state.deleteSequenceName));
+            console.log("removed sequence sended");
             ipcRenderer.send('remove_sequence', state.deleteSequenceName);
+            dispatch(setRemoveSeq(state.deleteSequenceName));
             onDeleteModalClose();
           }}
           color="secondary"
@@ -206,8 +209,6 @@ export default function ListPageWrapper() {
     </div>
   );
 
-  const items: JSX.Element[] = [];
-
   const handlePageChanged = (newPage: number) => {
     setState({
       ...state,
@@ -218,8 +219,8 @@ export default function ListPageWrapper() {
   state.totalPages = Math.ceil(seqs.length / 10);
   let startIndex = state.currentPage * 10;
   let endIndex = state.currentPage * 10 + 10;
-  endIndex = endIndex > seqs.length ? seqs.length : endIndex;
 
+  endIndex = endIndex > seqs.length ? seqs.length : endIndex;
   seqs.slice(startIndex, endIndex).map((item: Summary) => {
     if (
       item.name.toLowerCase().indexOf(state.name.toLowerCase()) >= 0 &&

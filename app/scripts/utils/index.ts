@@ -9,13 +9,28 @@ import { Result, Summary } from '../../types/Result';
 
 export const resultdirectory = 'sequences';
 
-export const resultdirectorypath = (app: App) =>
-  path.resolve(app.getAppPath(), `../${resultdirectory}`);
+export const resultdirectorypath = (app: App) =>{
+  // path.resolve(app.getAppPath(), `../${resultdirectory}`);
+  let basepath = app.getPath('home');
+  const mtpPath = path.join(basepath, 'MTP');
+  basepath = path.resolve(basepath, 'MTP', resultdirectory);
+
+  return basepath;
+}
+ 
 
 export const tempLogo = 'output.png';
 
 export const removeTempFiles = async (app: App) => {
-  const tempDirectory = path.join(app.getAppPath(), '../');
+
+  let basepath = app.getPath('home');
+  const mtpPath = path.join(basepath, 'MTP');
+  if (!fs.existsSync(mtpPath)) {
+    fs.mkdirSync(mtpPath, {recursive: true});
+  }
+  basepath = path.resolve(basepath, 'MTP');
+
+  const tempDirectory = basepath;
   fs.readdirSync(tempDirectory)
     .filter((n) => n.endsWith('.png'))
     .forEach((n) => {
@@ -270,8 +285,14 @@ export const removeDirectory = async (directoryPath: string) => {
 };
 
 export const resetSequence = async (sequence: any, app: App) => {
+  let basepath = app.getPath('home');
+  const mtpPath = path.join(basepath, 'MTP');
+  if (!fs.existsSync(mtpPath)) {
+    fs.mkdirSync(mtpPath, {recursive: true});
+  }
+  basepath = path.resolve(basepath, 'MTP', 'app');
   await Promise.all([
-    removeDirectory(getSequenceBasePath(sequence.steps.name, app.getAppPath())),
+    removeDirectory(getSequenceBasePath(sequence.steps.name,basepath)),
     removeTempFiles(app),
   ]);
 };

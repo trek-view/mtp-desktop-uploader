@@ -200,6 +200,7 @@ export default function App(props: Props) {
       <div style={{ textAlign: 'right' }}>
         <Button
           onClick={() => {
+            console.log("DELETED APP")
             dispatch(setInit());
             closeApp();
           }}

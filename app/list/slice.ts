@@ -21,6 +21,7 @@ const listSlice = createSlice({
     },
     endLoad(state, { payload }) {
       state.seqs = [...payload];
+      console.log(payload);
       state.loaded = true;
     },
     updateSeqs(state, { payload }) {
@@ -80,6 +81,7 @@ export const setAddSeq = (seq: Summary): AppThunk => {
 
 export const setRemoveSeq = (name: string): AppThunk => {
   return (dispatch) => {
+    console.log(name);
     dispatch(removeSeq(name));
   };
 };

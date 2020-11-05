@@ -217,9 +217,9 @@ export const uploadImagesMapillary = (
         console.log("directoryPath: " + directoryPath);
         const parts = directoryPath.split('\\');
         const seqName = parts[parts.length - 2];
-        const filepath = path.join(directoryPath, seqName.replace(' ', '_') + "_" + item.Image);
+        const filepath = path.join(directoryPath, seqName.split(' ').join('_') + "_" + item.Image);
 
-        uploadImage(filepath, seqName.replace(' ', '_') + "_" + item.Image, sessionData)
+        uploadImage(filepath, seqName.split(' ').join('_') + "_" + item.Image, sessionData)
           .then(() => next())
           .catch((e) => {
             console.log('UploadImage issue to Mapillary: ', e);

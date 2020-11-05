@@ -397,48 +397,50 @@ export default (mainWindow: BrowserWindow, app: App) => {
     }
   });
 
-  ipcMain.on('sequences', async (_event: IpcMainEvent) => {
-    if (!fs.existsSync(resultdirectorypath(app))) {
-      fs.mkdirSync(resultdirectorypath(app), {recursive: true});
-    }
-    const sequencesDirectories = fs
-      .readdirSync(resultdirectorypath(app))
-      .filter(
-        (name) =>
-          fs.lstatSync(getSequenceBasePath(name, basepath)).isDirectory() &&
-          fs.existsSync(getSequenceLogPath(name, basepath))
+  ipcMain.on(
+    'sequences', 
+    async (_event: IpcMainEvent) => {
+
+      if (!fs.existsSync(resultdirectorypath(app))) {
+        fs.mkdirSync(resultdirectorypath(app), {recursive: true});
+      }
+      const sequencesDirectories = fs
+        .readdirSync(resultdirectorypath(app))
+        .filter(
+          (name) =>
+            fs.lstatSync(getSequenceBasePath(name, basepath)).isDirectory() &&
+            fs.existsSync(getSequenceLogPath(name, basepath))
+        );
+
+      fs.readdirSync(resultdirectorypath(app))
+        .filter(
+          (name) =>
+            fs.lstatSync(getSequenceBasePath(name, basepath)).isDirectory() &&
+            !fs.existsSync(getSequenceLogPath(name, basepath))
+        )
+        .forEach((d: string) => {
+          rimraf.sync(getSequenceBasePath(d, basepath));
+        });
+
+      const sequences: Result[] = await Promise.all(
+        sequencesDirectories.map(async (name: string) => {
+          return JSON.parse(
+            fs.readFileSync(getSequenceLogPath(name, basepath)).toString()
+          );
+        })
       );
 
-    fs.readdirSync(resultdirectorypath(app))
-      .filter(
-        (name) =>
-          fs.lstatSync(getSequenceBasePath(name, basepath)).isDirectory() &&
-          !fs.existsSync(getSequenceLogPath(name, basepath))
-      )
-      .forEach((d: string) => {
-        rimraf.sync(getSequenceBasePath(d, basepath));
+      const summaries: Summary[] = await Promise.all(
+        sequences.map(async (s: Result) => {
+          const summary = await checkIntegrationStatus(s, basepath);
+          return summary;
+        })
+      );
+
+      summaries.sort((a: any, b: any) => {
+        return dayjs(a.created).isBefore(dayjs(b.created)) ? 1 : -1;
       });
-
-    const sequences: Result[] = await Promise.all(
-      sequencesDirectories.map(async (name: string) => {
-        return JSON.parse(
-          fs.readFileSync(getSequenceLogPath(name, basepath)).toString()
-        );
-      })
-    );
-
-    const summaries: Summary[] = await Promise.all(
-      sequences.map(async (s: Result) => {
-        const summary = await checkIntegrationStatus(s, basepath);
-        return summary;
-      })
-    );
-
-    summaries.sort((a: any, b: any) => {
-      return dayjs(a.created).isBefore(dayjs(b.created)) ? 1 : -1;
-    });
-
-    sendToClient(mainWindow, 'loaded_sequences', summaries);
+      sendToClient(mainWindow, 'loaded_sequences', summaries);
   });
 
   ipcMain.on(
@@ -473,6 +475,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
   ipcMain.on('remove_sequence', async (_event: IpcMainEvent, name: string) => {
     if (fs.existsSync(getSequenceBasePath(name, basepath))) {
       rimraf.sync(getSequenceBasePath(name, basepath));
+      // fs.unlinkSync(getSequenceBasePath(name, basepath));
     }
   });
 
