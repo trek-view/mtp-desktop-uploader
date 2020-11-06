@@ -179,7 +179,7 @@ export async function writeTags2Image(
 
   Object.keys(commonData).forEach((key: string) => {
     const convertedKey = key.replace(/.+:/, '');
-    if (
+ if (
       deleteTagKeys.indexOf(convertedKey) < 0 &&
       convertedKey.indexOf('File') < 0 &&
       convertedKey.indexOf('GPS') < 0 &&
@@ -196,9 +196,10 @@ export async function writeTags2Image(
       convertedKey.indexOf('Source') < 0 &&
       convertedKey.indexOf('Track') < 0 &&
       convertedKey.indexOf('Color') < 0 &&
-      convertedKey.indexOf('Image') < 0
+      (convertedKey.indexOf('Image') < 0 || convertedKey.indexOf('CroppedAreaImage') >= 0)
     )
       tags[convertedKey] = commonData[key];
+
   });
 
   let starttime: Dayjs;
