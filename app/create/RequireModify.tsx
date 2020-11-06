@@ -84,7 +84,7 @@ export default function RequireModify() {
 
   const requireModify = () => {
 
-    setCompletedDivisions(0);
+    dispatch(setCompletedDivisions(0));
 
     if (sequence.points.length > 500) {
       dispatch(setMultiPartProcessingMode(true));

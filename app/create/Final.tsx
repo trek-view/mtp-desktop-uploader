@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import ListIcon from '@material-ui/icons/List';
 import { push } from 'connected-react-router';
-import { setSequenceInit } from './slice';
+import { setCompletedDivisions, setSequenceInit } from './slice';
 
 import routes from '../constants/routes.json';
 
@@ -14,6 +14,9 @@ export default function Final() {
   const dispatch = useDispatch();
 
   const gotoList = () => {
+    
+    dispatch(setCompletedDivisions(0));
+
     dispatch(setSequenceInit());
     dispatch(push(routes.LIST));
   };
