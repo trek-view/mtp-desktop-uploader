@@ -196,7 +196,7 @@ export async function writeTags2Image(
       convertedKey.indexOf('Source') < 0 &&
       convertedKey.indexOf('Track') < 0 &&
       convertedKey.indexOf('Color') < 0 &&
-      convertedKey.indexOf('Image') < 0
+      (convertedKey.indexOf('Image') < 0 || convertedKey.indexOf('CroppedAreaImage') >= 0)
     )
       tags[convertedKey] = commonData[key];
   });
