@@ -42,7 +42,11 @@ export const uploadImage = async (
   });
   const uploadReference = urlres.data;
   const { uploadUrl } = uploadReference;
-  const parts = baseDirectory.split('\\');
+  let parts;
+  if (process.platform === 'win32')
+    parts = baseDirectory.split('\\');
+  else
+    parts = baseDirectory.split('/');
   const seqName = parts[parts.length - 2];
   const filepath = path.join(baseDirectory, seqName.split(' ').join('_') + "_" + item.Image);
   const data = fs.readFileSync(filepath);

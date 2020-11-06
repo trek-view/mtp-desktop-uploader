@@ -215,7 +215,11 @@ export const uploadImagesMapillary = (
         );
         console.log("upload to mapiliary - item.Image: " + item.Image);
         console.log("directoryPath: " + directoryPath);
-        const parts = directoryPath.split('\\');
+        let parts;
+        if (process.platform === 'win32')
+          parts = directoryPath.split('\\');
+        else
+          parts = directoryPath.split('/');
         const seqName = parts[parts.length - 2];
         const filepath = path.join(directoryPath, seqName.split(' ').join('_') + "_" + item.Image);
 
