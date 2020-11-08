@@ -25,8 +25,12 @@ export const uploadGpx = async (
       basepath
     );
     const data = new FormData();
+    let seqName = sequence.uploader_sequence_name;
+    if (sequence.uploader_sequence_name.includes('_part_')) {
+      seqName = sequence.uploader_sequence_name.replace('_part_', ' Part ');
+    }
     data.append('file', fs.createReadStream(filepath));
-    data.append('name', sequence.uploader_sequence_name);
+    data.append('name', seqName);
     data.append('description', sequence.uploader_sequence_description);
     data.append('data_type', 'gpx');
     data.append('external_id', sequenceId);

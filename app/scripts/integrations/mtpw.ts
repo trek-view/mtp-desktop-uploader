@@ -16,8 +16,12 @@ axios.interceptors.response.use(
 );
 
 export const postSequenceAPI = async (sequence: Sequence, token: string) => {
+  let seqName = sequence.uploader_sequence_name;
+  if (sequence.uploader_sequence_name.includes('_part_')) {
+    seqName = sequence.uploader_sequence_name.replace('_part_', ' Part ');
+  }
   const data = {
-    name: sequence.uploader_sequence_name,
+    name: seqName,
     description: sequence.uploader_sequence_description,
     transport_type: sequence.uploader_transport_method,
     tag: sequence.uploader_tags.join(','),
