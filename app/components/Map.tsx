@@ -26,6 +26,7 @@ import { selSequenceName } from '../create/slice';
 import { selBasePath } from '../base/slice';
 
 import markerImg from '../assets/images/marker.svg';
+import { select } from 'async';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -130,12 +131,21 @@ export default function MapBox(props: Props) {
     });
   };
 
-  const getpath = (idx: number) => {
-    return getSequenceImagePath(
+  // const getpath = (idx: number) => {
+  //   return getSequenceImagePath(
+  //     name,
+  //     filteredpoints[idx.toString()].Image,
+  //     basepath
+  //   );
+  // };
+
+  const getpath = (point: IGeoPoint) => {
+    var stringImage = getSequenceImagePath(
       name,
-      filteredpoints[idx.toString()].Image,
+      point.Image,
       basepath
     );
+    return stringImage;
   };
 
   const removePhoto = () => {
@@ -189,11 +199,11 @@ export default function MapBox(props: Props) {
           </div>
           {point.equirectangular && (
             <ReactPannellum
-              key={idx}
+              key={point.Image}
               style={{ width: '100%', height: 250 }}
-              imageSource={getpath(idx)}
-              id={`image_${idx.toString()}`}
-              sceneId={idx.toString()}
+              imageSource={getpath(point)}
+              id={`image_${point.Image}`}
+              sceneId={point.Image}
               config={{
                 autoLoad: true,
               }}
