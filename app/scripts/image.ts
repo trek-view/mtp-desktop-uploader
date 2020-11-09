@@ -130,8 +130,8 @@ export function getPoint(
                 const item = new IGeoPoint({
                   GPSDateTime: datetime,
                   DateTimeOriginal: parseExifDateTime(tags.DateTimeOriginal),
-                  MAPLatitude: tags.GPSLatitude,
-                  MAPLongitude: tags.GPSLongitude,
+                  MAPLatitude: tags.GPSLatitude > 0 ? tags.GPSLatitude : -tags.GPSLatitude,
+                  MAPLongitude: tags.GPSLongitude > 0 ? tags.GPSLongitude : -tags.GPSLongitude,
                   MAPAltitude: tags.GPSAltitude,
                   Image: filename,
                   Azimuth: azimuth,
@@ -150,12 +150,12 @@ export function getPoint(
                     if (item.MAPLatitude > 0) {
                       tags = {
                         ...tags, 
-                        GPSLatitudeRef: 'S'
+                        GPSLatitudeRef: 'N'
                       }
                     } else {
                       tags = {
                         ...tags, 
-                        GPSLatitudeRef: 'N'
+                        GPSLatitudeRef: 'S'
                       }
                     }
                   }
@@ -164,12 +164,12 @@ export function getPoint(
                     if (item.MAPLongitude > 0) {
                       tags = {
                         ...tags, 
-                        GPSLongitudeRef: 'W'
+                        GPSLongitudeRef: 'E'
                       }
                     } else {
                       tags = {
                         ...tags, 
-                        GPSLongitudeRef: 'S'
+                        GPSLongitudeRef: 'W'
                       }
                     }
                   }
@@ -475,8 +475,8 @@ export function writeExifTags(
             AllDates: datetime.format('YYYY-MM-DDTHH:mm:ss'),
             GPSTimeStamp: datetime.format('HH:mm:ss'),
             GPSDateStamp: datetime.format('YYYY-MM-DD'),
-            GPSLatitude: item.MAPLatitude,
-            GPSLongitude: item.MAPLongitude,
+            GPSLatitude: item.MAPLatitude == undefined ? undefined : (item.MAPLatitude > 0 ? item.MAPLatitude : -item.MAPLatitude),
+            GPSLongitude: item.MAPLongitude == undefined ? undefined : (item.MAPLongitude > 0 ? item.MAPLongitude : -item.MAPLongitude),
             GPSAltitude: item.MAPAltitude,
             PoseHeadingDegrees: azimuth,
             GPSImgDirection: azimuth,
@@ -493,12 +493,12 @@ export function writeExifTags(
               if (item.MAPLatitude > 0) {
                 tags = {
                   ...tags, 
-                  GPSLatitudeRef: 'S'
+                  GPSLatitudeRef: 'N'
                 }
               } else {
                 tags = {
                   ...tags, 
-                  GPSLatitudeRef: 'N'
+                  GPSLatitudeRef: 'S'
                 }
               }
             }
@@ -507,12 +507,12 @@ export function writeExifTags(
               if (item.MAPLongitude > 0) {
                 tags = {
                   ...tags, 
-                  GPSLongitudeRef: 'W'
+                  GPSLongitudeRef: 'E'
                 }
               } else {
                 tags = {
                   ...tags, 
-                  GPSLongitudeRef: 'S'
+                  GPSLongitudeRef: 'W'
                 }
               }
             }

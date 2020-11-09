@@ -91,42 +91,40 @@ export function getGPSVideoData(tags: typeof Tags) {
         dataList.filter((s: VGeoPointModel) => s.SampleTime === sampleTime)
           .length === 0
       ) {
+        const mlat = parseDms(tags[`${k}:GPSLatitude`]);
+        const mlong = parseDms(tags[`${k}:GPSLongitude`]);
         const item = new VGeoPoint({
           GPSDateTime: parseExifDateTime(tags[`${k}:GPSDateTime`]),
-          MAPLatitude: parseDms(tags[`${k}:GPSLatitude`]),
-          MAPLongitude: parseDms(tags[`${k}:GPSLongitude`]),
+          MAPLatitude: mlat > 0 ? mlat : -mlat,
+          MAPLongitude: mlong > 0 ? mlong : -mlong,
           MAPAltitude: getAltudeMeters(tags[`${k}:GPSAltitude`]),
           SampleTime: sampleTime,
         });
-        if (item != undefined) {
-          if (item.MAPLatitude != undefined) {
-            if (item.MAPLatitude > 0) {
-              tags = {
-                ...tags, 
-                GPSLatitudeRef: 'S'
-              }
-            } else {
-              tags = {
-                ...tags, 
-                GPSLatitudeRef: 'N'
-              }
-            }
-          }
 
-          if (item.MAPLongitude != undefined) {
-            if (item.MAPLongitude > 0) {
-              tags = {
-                ...tags, 
-                GPSLongitudeRef: 'W'
-              }
-            } else {
-              tags = {
-                ...tags, 
-                GPSLongitudeRef: 'S'
-              }
-            }
+        if (mlat > 0) {
+          tags = {
+            ...tags, 
+            GPSLatitudeRef: 'N'
+          }
+        } else {
+          tags = {
+            ...tags, 
+            GPSLatitudeRef: 'S'
           }
         }
+        
+        if (mlong > 0) {
+          tags = {
+            ...tags, 
+            GPSLongitudeRef: 'E'
+          }
+        } else {
+          tags = {
+            ...tags, 
+            GPSLongitudeRef: 'W'
+          }
+        }
+
         dataList.push(item);
       }
     } catch (e) {
