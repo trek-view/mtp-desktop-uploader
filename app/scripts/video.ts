@@ -98,6 +98,35 @@ export function getGPSVideoData(tags: typeof Tags) {
           MAPAltitude: getAltudeMeters(tags[`${k}:GPSAltitude`]),
           SampleTime: sampleTime,
         });
+        if (item != undefined) {
+          if (item.MAPLatitude != undefined) {
+            if (item.MAPLatitude > 0) {
+              tags = {
+                ...tags, 
+                GPSLatitudeRef: 'S'
+              }
+            } else {
+              tags = {
+                ...tags, 
+                GPSLatitudeRef: 'N'
+              }
+            }
+          }
+
+          if (item.MAPLongitude != undefined) {
+            if (item.MAPLongitude > 0) {
+              tags = {
+                ...tags, 
+                GPSLongitudeRef: 'W'
+              }
+            } else {
+              tags = {
+                ...tags, 
+                GPSLongitudeRef: 'S'
+              }
+            }
+          }
+        }
         dataList.push(item);
       }
     } catch (e) {

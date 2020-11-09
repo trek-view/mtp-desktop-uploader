@@ -93,17 +93,13 @@ export default function Destination() {
   const handleChange = (key: string) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log("key: " + key);
     const newState = {
       ...state,
       [key]: event.target.checked,
     };
 
-    console.dir("newState: " + JSON.stringify(newState));
-
     if (key === 'mapillary' && event.target.checked) {
       newState.mtp = event.target.checked;
-      // newState.mapillary = event.target.checked;
     }
 
     if (key === 'mapillary' && !event.target.checked) {

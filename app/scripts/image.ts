@@ -144,6 +144,37 @@ export function getPoint(
                   height: tags.ImageHeight,
                   tags: itemTags,
                 });
+
+                if (item != undefined) {
+                  if (item.MAPLatitude != undefined) {
+                    if (item.MAPLatitude > 0) {
+                      tags = {
+                        ...tags, 
+                        GPSLatitudeRef: 'S'
+                      }
+                    } else {
+                      tags = {
+                        ...tags, 
+                        GPSLatitudeRef: 'N'
+                      }
+                    }
+                  }
+      
+                  if (item.MAPLongitude != undefined) {
+                    if (item.MAPLongitude > 0) {
+                      tags = {
+                        ...tags, 
+                        GPSLongitudeRef: 'W'
+                      }
+                    } else {
+                      tags = {
+                        ...tags, 
+                        GPSLongitudeRef: 'S'
+                      }
+                    }
+                  }
+                }
+                
                 return cb(null, item);
               })
               .catch((err: Error) => {
@@ -456,6 +487,36 @@ export function writeExifTags(
               GPSDateTime: undefined,
             }),
           };
+
+          if (item != undefined) {
+            if (item.MAPLatitude != undefined) {
+              if (item.MAPLatitude > 0) {
+                tags = {
+                  ...tags, 
+                  GPSLatitudeRef: 'S'
+                }
+              } else {
+                tags = {
+                  ...tags, 
+                  GPSLatitudeRef: 'N'
+                }
+              }
+            }
+
+            if (item.MAPLongitude != undefined) {
+              if (item.MAPLongitude > 0) {
+                tags = {
+                  ...tags, 
+                  GPSLongitudeRef: 'W'
+                }
+              } else {
+                tags = {
+                  ...tags, 
+                  GPSLongitudeRef: 'S'
+                }
+              }
+            }
+          }
 
           exiftool
             .write(inputFile, tags, options)
