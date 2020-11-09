@@ -44,7 +44,7 @@ export default async (
 
   console.log('googlePlace: ', googlePlace);
 
-  if (!mtp || !mtpwToken) return { result: resultjson };
+  // if (!mtp || !mtpwToken) return { result: resultjson };
 
   let mapillarySessionData = null;
 
@@ -159,14 +159,16 @@ export default async (
       resultjson.sequence.destination.strava = activityId;
     }
 
-    if (Object.keys(updateIntegrationStatusData).length) {
-      const { seqError } = await updateIntegrationStatusDataAPI(
-        mtpwId,
-        updateIntegrationStatusData
-      );
+    if (mtp) {
+      if (Object.keys(updateIntegrationStatusData).length) {
+        const { seqError } = await updateIntegrationStatusDataAPI(
+          mtpwId,
+          updateIntegrationStatusData
+        );
 
-      if (seqError) {
-        return getError(seqError);
+        if (seqError) {
+          return getError(seqError);
+        }
       }
     }
 
