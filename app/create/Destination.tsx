@@ -106,6 +106,14 @@ export default function Destination() {
       newState.mtp = event.target.checked;
     }
 
+    if (key === 'mtp' && event.target.checked) {
+      newState.mapillary = event.target.checked;
+    }
+
+    if (key === 'mtp' && !event.target.checked) {
+      newState.mapillary = event.target.checked;
+    }
+
     setState(newState);
   };
 
