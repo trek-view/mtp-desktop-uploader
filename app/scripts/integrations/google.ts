@@ -2,13 +2,14 @@ import axios from 'axios';
 
 import path from 'path';
 import fs from 'fs';
-import FormData from 'form-data';
 import { BrowserWindow } from 'electron';
 import dayjs from 'dayjs';
 import Async from 'async';
 import tokenStore from '../tokens';
 import { IGeoPoint } from '../../types/IGeoPoint';
 import { sendToClient } from '../utils';
+
+const electron = require('electron');
 
 axios.interceptors.response.use(
   (res) => res,
@@ -111,17 +112,34 @@ export const uploadImagesToGoogle = (
   messageChannelName: string,
   googlePlace?: string
 ) => {
-  const token = tokenStore.getToken('google');
+  let token = tokenStore.getToken('google');
+
+  let index = 0;
 
   return new Promise((resolve, reject) => {
     Async.eachOfLimit(
       points,
       1,
-      (point: IGeoPoint, key: any, cb: CallableFunction) => {
+      async function (point: IGeoPoint, key: any, cb: CallableFunction) {
         let adAzimuth = 0;
         if (key !== 0) {
           const prevPoint = points[key - 1];
           adAzimuth = (point.Azimuth - prevPoint.Azimuth + 360) % 360;
+        }
+
+        index++;
+
+        if (index == 2) {
+          const refreshToken = tokenStore.getRefreshToken('google');
+          fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug.log'),
+            JSON.safeStringify(refreshToken)
+          );
+          const newToken = await getGoogleRefreshToken(refreshToken);
+          token = newToken;
+          fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug3.log'),
+            JSON.safeStringify(token)
+          );
+          index = 0;
         }
 
         uploadImage(
@@ -144,4 +162,38 @@ export const uploadImagesToGoogle = (
       }
     );
   });
+};
+
+JSON.safeStringify = (obj, indent = 2) => {
+  let cache: any[] | null = [];
+  const retVal = JSON.stringify(
+    obj,
+    (key, value) =>
+      typeof value === "object" && value !== null
+        ? cache.includes(value)
+          ? undefined // Duplicate reference found, discard key
+          : cache.push(value) && value // Store value in our collection
+        : value,
+    indent
+  );
+  cache = null;
+  return retVal;
+};
+
+export const getGoogleRefreshToken = async (refreshToken: string) => {
+  let tokenDetails = await fetch("https://accounts.google.com/o/oauth2/token", {
+    "method": "POST",
+    "body": JSON.stringify({
+      "client_id": process.env.GOOGLE_CLIENT_ID,
+      "client_secret": process.env.GOOGLE_CLIENT_SECRET,
+      "refresh_token": refreshToken,
+      "grant_type": "refresh_token",
+    })
+  });
+  fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug2.log'),
+    JSON.safeStringify(tokenDetails)
+  );
+  tokenDetails = await tokenDetails.json();
+  const accessToken = tokenDetails.access_token;
+  return accessToken;
 };

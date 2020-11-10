@@ -609,6 +609,8 @@ export const sendTokenFromUrl = async (
         'redirect_uri',
         `${process.env.MTP_WEB_URL}/accounts/check-mtpu-google-oauth`
       );
+      data.append('access_type', 'offline')
+      data.append('prompt', 'consent');
 
       try {
         const tokenData = await axios({
