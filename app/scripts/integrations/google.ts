@@ -120,7 +120,7 @@ export const uploadImagesToGoogle = (
     Async.eachOfLimit(
       points,
       1,
-      async function (point: IGeoPoint, key: any, cb: CallableFunction) {
+      async (point: IGeoPoint, key: any, cb: CallableFunction) => {
         let adAzimuth = 0;
         if (key !== 0) {
           const prevPoint = points[key - 1];
@@ -129,16 +129,10 @@ export const uploadImagesToGoogle = (
 
         index++;
 
-        if (index == 2) {
+        if (index == 50 + 1) {
           const refreshToken = tokenStore.getRefreshToken('google');
-          fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug.log'),
-            JSON.safeStringify(refreshToken)
-          );
           const newToken = await getGoogleRefreshToken(refreshToken);
           token = newToken;
-          fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug3.log'),
-            JSON.safeStringify(token)
-          );
           index = 0;
         }
 
@@ -180,20 +174,38 @@ JSON.safeStringify = (obj, indent = 2) => {
   return retVal;
 };
 
+const querystring = require('querystring');
+
 export const getGoogleRefreshToken = async (refreshToken: string) => {
-  let tokenDetails = await fetch("https://accounts.google.com/o/oauth2/token", {
-    "method": "POST",
-    "body": JSON.stringify({
-      "client_id": process.env.GOOGLE_CLIENT_ID,
-      "client_secret": process.env.GOOGLE_CLIENT_SECRET,
-      "refresh_token": refreshToken,
-      "grant_type": "refresh_token",
-    })
-  });
-  fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug2.log'),
-    JSON.safeStringify(tokenDetails)
-  );
-  tokenDetails = await tokenDetails.json();
-  const accessToken = tokenDetails.access_token;
-  return accessToken;
+  let newAccessToken = '';
+  // let newRefreshToken = '';
+
+  try {
+    const accessTokenObj = await axios.post(
+      'https://www.googleapis.com/oauth2/v4/token',
+      querystring.stringify({
+        refresh_token: refreshToken,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        grant_type: 'refresh_token', 
+        access_type: 'offline',
+        // prompt: 'consent',
+      })
+    );
+    const tokenObj = accessTokenObj.data;
+    newAccessToken = tokenObj.access_token;
+    // newRefreshToken = tokenObj.refresh_token;
+
+    // fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug.log'),
+    //   JSON.safeStringify(tokenObj)
+    // );
+
+  } catch (error) {
+    console.log(error);
+    // fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'debug-error.log'),
+    //   error
+    // );
+  }
+  
+  return newAccessToken;
 };

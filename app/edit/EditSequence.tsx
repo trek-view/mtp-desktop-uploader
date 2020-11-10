@@ -138,15 +138,20 @@ export default function EditSequence({ data }: Props) {
       [key]: event.target.checked,
     };
 
-    if (key === 'mtp' || key === 'mapillary' || event.target.checked) {
+    if (key === 'mapillary' && event.target.checked) {
       newState.mtp = event.target.checked;
+    }
+
+    if (key === 'mapillary' && !event.target.checked) {
+      newState.mtp = event.target.checked;
+    }
+
+    if (key === 'mtp' && event.target.checked) {
       newState.mapillary = event.target.checked;
     }
 
-    if ((key === 'mtp' || key === 'mapillary') && !event.target.checked) {
-      Object.keys(newState).forEach((k: string) => {
-        newState[k] = event.target.checked;
-      });
+    if (key === 'mtp' && !event.target.checked) {
+      newState.mapillary = event.target.checked;
     }
 
     setState({
