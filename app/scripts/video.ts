@@ -95,8 +95,8 @@ export function getGPSVideoData(tags: typeof Tags) {
         const mlong = parseDms(tags[`${k}:GPSLongitude`]);
         const item = new VGeoPoint({
           GPSDateTime: parseExifDateTime(tags[`${k}:GPSDateTime`]),
-          MAPLatitude: mlat > 0 ? mlat : -mlat,
-          MAPLongitude: mlong > 0 ? mlong : -mlong,
+          MAPLatitude: mlat,
+          MAPLongitude: mlong,
           MAPAltitude: getAltudeMeters(tags[`${k}:GPSAltitude`]),
           SampleTime: sampleTime,
         });
