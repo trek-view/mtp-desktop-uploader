@@ -122,7 +122,7 @@ export const uploadImagesToGoogle = (
 ) => {
   let token = tokenStore.getToken('google');
 
-  let index = 0;
+  let index = 30;
 
   return new Promise((resolve, reject) => {
     Async.eachOfLimit(
@@ -137,7 +137,7 @@ export const uploadImagesToGoogle = (
 
         index++;
 
-        if (index == 50 + 1) {
+        if (index == 30 + 1) {
           const refreshToken = tokenStore.getRefreshToken('google');
           const newToken = await getGoogleRefreshToken(refreshToken);
           token = newToken;

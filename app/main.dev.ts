@@ -9,13 +9,15 @@
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
 import { app, BrowserWindow, shell, Menu, dialog } from 'electron';
-
+import fs from 'fs';
 import path from 'path';
 import eventsLoader, { sendTokenFromUrl } from './scripts/events_loader';
 
 import { sendToClient } from './scripts/utils';
 
 import { Octokit } from "@octokit/rest";
+
+const electron = require('electron');
 
 const repository = '';
 var owner = 'trek-view';
@@ -278,6 +280,19 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       mainWindow.focus();
+
+      fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'tokens.json'), 'utf8', (error, data) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        var tokens = JSON.parse(data);
+        tokens.google = { token: null, waiting: true };
+        fs.writeFileSync(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'tokens.json'),
+          JSON.stringify(tokens)
+        );
+      });
+
       // mainWindow.toggleDevTools(); // temporary added for developing purpose
       var tagName = await checkForUpdate();
       if (tagName != undefined && tagName != '' && tagName.length > 0) {
