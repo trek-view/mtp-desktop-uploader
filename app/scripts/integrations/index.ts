@@ -170,10 +170,10 @@ export default async (
           return getError(seqError);
         }
       }
-    }
 
-    resultjson.sequence.destination.mtp = mtpwId;
-    resultjson.sequence.destination.mtpw_user_token = mtpwToken;
+      resultjson.sequence.destination.mtp = mtpwId;
+      resultjson.sequence.destination.mtpw_user_token = mtpwToken;
+    }
   }
 
   return { result: resultjson };
