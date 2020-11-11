@@ -741,6 +741,9 @@ export function updateImages(
       };
     });
 
+    let beautifiedName = settings.name.split('_').join(' ');
+    beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
     Async.eachOfLimit(
       updatedPoints,
       1,
@@ -748,7 +751,7 @@ export function updateImages(
         sendToClient(
           win,
           'loaded_message',
-          `Updating file: ${item.Image}`
+          `[${beautifiedName}] Updating file: ${item.Image}`
         );
 
         const desc: Description = descriptions[item.id];
@@ -809,7 +812,7 @@ export function updateImages(
               sendToClient(
                 win,
                 'loaded_message',
-                `Updating file: ${item.Image}`
+                `[${beautifiedName}] Updating file: ${item.Image}`
               );
               next();
             }
