@@ -27,10 +27,18 @@ export const uploadImage = async (
   adAzimuth: number,
   googlePlace?: string
 ) => {
+  let p;
+  if (process.platform === 'win32')
+    p = baseDirectory.split('\\');
+  else
+    p = baseDirectory.split('/');
+  const sn = p[p.length - 2];
+  let beautifiedName = sn.split('_').join(' ');
+  beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   sendToClient(
     mainWindow,
     messageChannelName,
-    `${item.Image} is uploading to Google Street View`
+    `[${beautifiedName}] ${item.Image} is uploading to Google Street View`
   );
 
   const urlres = await axios({

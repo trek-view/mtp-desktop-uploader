@@ -203,6 +203,14 @@ export const uploadImagesMapillary = (
   sessionData: any,
   messageChannelName = 'update_loaded_message'
 ) => {
+  let p;
+  if (process.platform === 'win32')
+    p = directoryPath.split('\\');
+  else
+    p = directoryPath.split('/');
+  const sn = p[p.length - 2];
+  let beautifiedName = sn.split('_').join(' ');
+  beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   return new Promise((resolve, reject) => {
     Async.eachOfLimit(
       points,
@@ -211,7 +219,7 @@ export const uploadImagesMapillary = (
         sendToClient(
           mainWindow,
           messageChannelName,
-          `${item.Image} is uploading to Mapillary`
+          `[${beautifiedName}] ${item.Image} is uploading to Mapillary`
         );
         console.log("upload to mapiliary - item.Image: " + item.Image);
         console.log("directoryPath: " + directoryPath);
