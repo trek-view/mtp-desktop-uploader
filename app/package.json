@@ -1,7 +1,7 @@
 {
   "name": "map-the-paths-uploader",
   "productName": "map-the-paths-uploader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Map the Paths Desktop Uploader allows you to manage your street-level map imagery.",
   "main": "./main.prod.js",
   "author": {

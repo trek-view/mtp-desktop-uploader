@@ -1,7 +1,7 @@
 {
   "name": "mtp",
   "productName": "Map the Paths Desktop Uploader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Share your street-level imagery with the world and help improve the map.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
