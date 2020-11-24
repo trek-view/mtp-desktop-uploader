@@ -25,6 +25,7 @@ export const loadMapillarySessionData = async (
   token: string
 ): Promise<Session> => {
   try {
+    console.log('mapillary id: ', process.env.MAPILLARY_APP_ID);
     let sessoinDataData = await axios.post(
       `https://a.mapillary.com/v3/me/uploads?client_id=${process.env.MAPILLARY_APP_ID}`,
       {
@@ -211,16 +212,38 @@ export const uploadImagesMapillary = (
   const sn = p[p.length - 2];
   let beautifiedName = sn.split('_').join(' ');
   beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  /////////////////////
+  const upload_status_file = path.join(directoryPath, 'upload_mapillary.json');
+  let logPoints = [];
+  if (fs.existsSync(upload_status_file)) {
+    logPoints = JSON.parse(fs.readFileSync(upload_status_file).toString());  
+  } else {
+    points.map((point, idx) => {
+      logPoints.push({ idx: idx + 1, filename: point.Image, status: 'PENDING' });
+    });
+    fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
+  }
+  //////////////////////
   return new Promise((resolve, reject) => {
     Async.eachOfLimit(
       points,
       1,
       (item: IGeoPoint, key: any, next: CallableFunction) => {
-        sendToClient(
-          mainWindow,
-          messageChannelName,
-          `[${beautifiedName}] ${item.Image} is uploading to Mapillary`
-        );
+        if (logPoints[key].status === "PENDING")
+          sendToClient(
+            mainWindow,
+            messageChannelName,
+            `[${beautifiedName}] ${item.Image} is uploading to Mapillary`
+          );
+        else if (logPoints[key].status === "TRUE") {
+          sendToClient(
+            mainWindow,
+            messageChannelName,
+            `[${beautifiedName}] ${item.Image} was already uploaded to Mapillary`
+          );
+          next();
+        }
+                   
         console.log("upload to mapiliary - item.Image: " + item.Image);
         console.log("directoryPath: " + directoryPath);
         let parts;
@@ -230,9 +253,13 @@ export const uploadImagesMapillary = (
           parts = directoryPath.split('/');
         const seqName = parts[parts.length - 2];
         const filepath = path.join(directoryPath, seqName.split(' ').join('_') + "_" + item.Image);
-
+        // let uploaded_points = JSON.parse(fs.readFileSync(upload_status_file).toString());  
         uploadImage(filepath, seqName.split(' ').join('_') + "_" + item.Image, sessionData)
-          .then(() => next())
+          .then(() => {
+            logPoints[key].status = "TRUE";
+            fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
+            next()
+          })
           .catch((e) => {
             console.log('UploadImage issue to Mapillary: ', e);
             // eslint-disable-next-line promise/no-callback-in-promise

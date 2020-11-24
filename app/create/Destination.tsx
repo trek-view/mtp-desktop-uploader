@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
+import tokenStore from '../scripts/tokens';
 import {
   Typography,
   Grid,
@@ -157,7 +157,7 @@ export default function Destination() {
         />
       );
     });
-
+    
   return (
     <>
       <Grid item xs={12}>

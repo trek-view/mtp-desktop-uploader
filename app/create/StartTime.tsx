@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import {
   selModifiedStartTime,
@@ -18,6 +19,7 @@ import {
   selGPXRequired,
   selModifyTime,
   setModifyTime,
+  selError
 } from './slice';
 import { importGpx } from '../scripts/utils';
 
@@ -34,6 +36,7 @@ export default function SequenceStartTime() {
   const firstMatchedPoints = useSelector(selFirstMatchedPoints);
   const allGeoTagged = useSelector(selGPXRequired);
   const time = useSelector(selModifyTime);
+  const error = useSelector(selError);
 
   const modifyTime = () => {
     dispatch(setCurrentStep('modifyTime'));
@@ -87,6 +90,13 @@ export default function SequenceStartTime() {
             have to change the start time of Gpx points.
           </Typography>
         )}
+        { (!firstMatchedPoints || firstMatchedPoints.length < 2) && (
+            <Alert severity="error">
+              <AlertTitle>Error</AlertTitle>
+              <span>2 or more matches must exist before you can continue.</span>
+            </Alert>
+          )
+        }
       </Grid>
       <Grid item xs={12}>
         <Box mr={1} display="inline-block">
@@ -99,14 +109,17 @@ export default function SequenceStartTime() {
             Modify Photo Times
           </Button>
         </Box>
-        <Button
-          endIcon={<ChevronRightIcon />}
-          color="primary"
-          onClick={correctTime}
-          variant="contained"
-        >
-          Geotag Images
-        </Button>
+        { (firstMatchedPoints && firstMatchedPoints.length > 1) && (
+            <Button
+              endIcon={<ChevronRightIcon />}
+              color="primary"
+              onClick={correctTime}
+              variant="contained"
+            >
+              Geotag Images
+            </Button>
+          )
+        }
       </Grid>
     </>
   );

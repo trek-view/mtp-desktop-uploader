@@ -1,9 +1,10 @@
 import axios from 'axios';
 import qs from 'qs';
 import fs from 'fs';
+import path from 'path';
 import { Sequence, Result, Summary } from '../../types/Result';
 import axiosErrorHandler from '../utils/axios';
-import { createdData2List, getSequenceLogPath } from '../utils';
+import { createdData2List, getSequenceLogPath, getSequenceBasePath } from '../utils';
 import { findSequences } from './mapillary';
 import tokenStore from '../tokens';
 import { findActivityAPI, getStravaToken, updateActivityAPI } from './strava';
@@ -54,9 +55,25 @@ export const postSequenceAPI = async (sequence: Sequence, token: string) => {
 };
 
 export const updateIntegrationStatusDataAPI = async (
+  sequence: Sequence,
   seqId: string,
-  data: any
+  basepath: string,
+  data: any  
 ) => {
+  const upload_status_file = path.join(
+    getSequenceBasePath(sequence.uploader_sequence_name, basepath),
+    'upload_mtp.json'
+  );
+  let logMTP = {};
+  if (fs.existsSync(upload_status_file)) {
+    logMTP = JSON.parse(fs.readFileSync(upload_status_file).toString());
+  } else {
+    logMTP = { sequence: sequence.uploader_sequence_name, status: 'PENDING' };
+    fs.writeFileSync(upload_status_file, JSON.stringify(logMTP));
+  }
+  if (logMTP.status === 'TRUE') {
+    return { }
+  }
   const mtpwToken = tokenStore.getToken('mtp');
   const config = {
     method: 'put',
@@ -76,6 +93,8 @@ export const updateIntegrationStatusDataAPI = async (
         seqError: `MTPWImportSequence: ${res.data.error}`,
       };
     }
+    logMTP.status = 'TRUE';
+    fs.writeFileSync(upload_status_file, JSON.stringify(logMTP));
     return {};
   } catch (error) {
     return {
@@ -116,7 +135,9 @@ export const checkIntegrationStatus = async (
       s.sequence.destination.mapillary = `Error: ${error}`;
     } else if (data && destination.mtp && typeof destination.mtp === 'string') {
       const { seqError } = await updateIntegrationStatusDataAPI(
+        s.sequence,
         destination.mtp,
+        basepath,
         {
           mapillary_user_token: mapillaryToken,
           mapillary_sequence_key: data,

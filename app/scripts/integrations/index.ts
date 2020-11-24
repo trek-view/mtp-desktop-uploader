@@ -40,9 +40,8 @@ export default async (
   const googleToken = tokenStore.getToken('google');
   const stravaToken = tokenStore.getToken('strava');
 
+  console.log(mapillaryToken, googleToken, mtpwToken, stravaToken);
   const { mapillary, mtp, google, strava } = settings;
-
-  console.log('googlePlace: ', googlePlace);
 
   // if (!mtp || !mtpwToken) return { result: resultjson };
 
@@ -124,8 +123,6 @@ export default async (
         tokenStore.getRefreshToken('strava')
       );
 
-      console.log('newStravaToken:', newStravaToken);
-
       if (newStravaToken.error) {
         return getError(newStravaToken.error);
       }
@@ -162,7 +159,9 @@ export default async (
     if (mtp) {
       if (Object.keys(updateIntegrationStatusData).length) {
         const { seqError } = await updateIntegrationStatusDataAPI(
+          resultjson.sequence,
           mtpwId,
+          basepath,
           updateIntegrationStatusData
         );
 

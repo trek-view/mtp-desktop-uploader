@@ -213,7 +213,6 @@ export function discardPointsBySeconds(
   const newpoints = [];
   let nextIdx = 1;
   let currentIdx = 0;
-
   while (true) {
     const point = points[currentIdx];
 
@@ -240,9 +239,12 @@ export function discardPointsBySeconds(
     }
 
     const nextPoint = points[nextIdx];
+    
+    let timediff = nextPoint.getDate().diff(point.getDate(), 'millisecond');
+    if (timediff===0) timediff = nextPoint.getDateOriginal().diff(point.getDateOriginal(), 'millisecond');
 
     if (
-      nextPoint.getDate().diff(point.getDate(), 'millisecond') >=
+      timediff >=
       seconds * 1000
     ) {
       const azimuth = getBearing(point, nextPoint);

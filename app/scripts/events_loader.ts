@@ -152,7 +152,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
         return;
       }
 
-    loadImageFiles(
+      loadImageFiles(
         dirPath,
         fileNames,
         getSequenceBasePath(seqname, basepath),
@@ -352,7 +352,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       outputType,
       basepath
     );
-
+    
     const gpxData = new GarminBuilder();
 
     const gpxPoints = points.map((p: IGeoPoint) => {

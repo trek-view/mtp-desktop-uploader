@@ -74,7 +74,6 @@ export function getPoint(
               if (err) return cb(err);
               const [red, green, blue] = color;
               const averageColor = (red + green + blue) / 3;
-              console.log('Average Color: ', averageColor);
               cb(null, averageColor < 200 && averageColor > 55);
             });
           } else {
@@ -181,6 +180,7 @@ export function getPoint(
                 return cb(err);
               });
           } else {
+
             return cb(null, {
               Image: filename,
             });
@@ -238,13 +238,13 @@ export const calculatePoints = (
   next: CallableFunction
 ) => {
   try {
+    
     if (points.filter((p: IGeoPoint) => p.GPSDateTime).length) {
       points.sort((firstItem: IGeoPoint, secondItem: IGeoPoint) => {
         if (secondItem.getDate().isBefore(firstItem.getDate())) return 1;
         if (secondItem.getDate().isAfter(firstItem.getDate())) return -1;
         return 0;
       });
-
       const existedFarPoint =
         points.filter((item: IGeoPoint, idx) => {
           return (
@@ -252,6 +252,7 @@ export const calculatePoints = (
             item.getDate().diff(points[idx + 1].getDate(), 'second') > 120
           );
         }).length > 0;
+        
       if (existedFarPoint) {
         throw new Error('some photos are too far apart by time');
       }
@@ -277,7 +278,6 @@ export const calculatePoints = (
       next(null, { points, removedfiles });
     }
   } catch (e) {
-    console.log('Calculation points issue', e);
     next(e);
   }
 };
@@ -370,7 +370,6 @@ export function modifyLogo(logourl: string, outputfile: string) {
           0x000000ff,
           (err: any, outputlogo: any) => {
             if (err) {
-              console.log('Creating Logo Image Issue: ', err);
               return reject(err);
             }
             for (let y = 0; y < outputheight; y += 1) {
@@ -397,7 +396,6 @@ export function modifyLogo(logourl: string, outputfile: string) {
                 return resolve();
               })
               .catch((err: any) => {
-                console.log('Error in Writing:', err);
                 reject(err);
               });
           }
@@ -454,8 +452,6 @@ export function writeExifTags(
                   cb(err);
                 });
             } catch (e) {
-              console.log('Making directory Issue:', e);
-
               cb(e);
             }
           } else {
@@ -567,7 +563,6 @@ export function writeNadirImages(
           return image.writeAsync(outputfile);
         })
         .catch((err) => {
-          console.log(`Read File Error in Jimp: ${filename} - `, err);
           return reject();
         });
       const writeExifAsync = addLogoAsync
@@ -578,16 +573,11 @@ export function writeNadirImages(
           })
         )
         .catch((err) => {
-          console.error(`Add Logo Error:  ${filename} - `, err);
           return reject();
         });
       writeExifAsync
         .then(() => resolve())
         .catch((err) => {
-          console.log(
-            `Writing ExifTags for Image added Nadir: ${outputfile} - `,
-            err
-          );
           reject(err);
         });
     } else {
@@ -821,7 +811,6 @@ export function updateImages(
       },
       (err: any) => {
         if (err) {
-          console.log('Error: ', err);
           return typeof err === 'string'
             ? reject(new Error(err))
             : reject(new Error(err.message));

@@ -150,10 +150,13 @@ export default function DestinationLogin() {
   const errorItems = Object.keys(destination)
     .filter((integration: string) => destination[integration])
     .filter(
-      (integration: string) =>
-        tokens[integration] &&
+      (integration: string) => {
+        console.log(tokens[integration])
+        return tokens[integration] &&
         tokens[integration].token &&
         !tokens[integration].token.access_token
+      }
+        
     )
     .map((integration: string) => {
       return (

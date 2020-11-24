@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 import fs from 'fs';
+import path from 'path';
 import FormData from 'form-data';
 import axiosErrorHandler from '../utils/axios';
-import { getSequenceGpxPath } from '../utils';
+import { getSequenceBasePath, getSequenceGpxPath } from '../utils';
 import { Sequence } from '../../types/Result';
 
 axios.interceptors.response.use(
@@ -24,6 +25,22 @@ export const uploadGpx = async (
       sequence.uploader_sequence_name,
       basepath
     );
+    const upload_status_file = path.join(
+      getSequenceBasePath(sequence.uploader_sequence_name, basepath), 
+      'upload_strava.json'
+    );
+    let logStrava = {};
+    if (fs.existsSync(upload_status_file)) {
+      logStrava = JSON.parse(fs.readFileSync(upload_status_file).toString());
+    } else {
+      logStrava = { sequence: sequence.uploader_sequence_name, status: 'PENDING' };
+      fs.writeFileSync(upload_status_file, JSON.stringify(logStrava));
+    }
+    if (logStrava.status === 'TRUE' && logStrava.data) {
+      return {
+        data: logStrava.data
+      }
+    }
     const data = new FormData();
     let seqName = sequence.uploader_sequence_name;
     if (sequence.uploader_sequence_name.includes('_part_')) {
@@ -47,6 +64,11 @@ export const uploadGpx = async (
     });
 
     console.log('Uploading Gpx To Strava:', res.data);
+    /////////////////
+    logStrava.status = "TRUE";
+    logStrava.data = res.data.id;
+    fs.writeFileSync(upload_status_file, JSON.stringify(logStrava));
+    /////////////////
     return {
       data: res.data.id,
     };

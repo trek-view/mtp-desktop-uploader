@@ -123,12 +123,27 @@ export const uploadImagesToGoogle = (
   let token = tokenStore.getToken('google');
 
   let index = 30;
+  /////////////////////
+  const upload_status_file = path.join(baseDirectory, 'upload_google.json');
+  let logPoints = [];
+  if (fs.existsSync(upload_status_file)) {
+    logPoints = JSON.parse(fs.readFileSync(upload_status_file).toString());  
+  } else {
+    points.map((point, idx) => {
+      logPoints.push({ idx: idx + 1, filename: point.Image, status: 'PENDING' });
+    });
+    fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
+  }
+  //////////////////////
 
   return new Promise((resolve, reject) => {
     Async.eachOfLimit(
       points,
       1,
       async (point: IGeoPoint, key: any, cb: CallableFunction) => {
+        if (logPoints[key].status === "TRUE") {
+          cb(null);
+        }
         let adAzimuth = 0;
         if (key !== 0) {
           const prevPoint = points[key - 1];
@@ -154,7 +169,11 @@ export const uploadImagesToGoogle = (
           googlePlace
         )
           // eslint-disable-next-line promise/no-callback-in-promise
-          .then(() => cb(null))
+          .then(() => {
+            logPoints[key].status = "TRUE";
+            fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
+            cb(null);
+          })
           // eslint-disable-next-line promise/no-callback-in-promise
           .catch((err) => cb(err));
       },

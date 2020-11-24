@@ -88,7 +88,6 @@ export default function App(props: Props) {
   useEffect(() => {
     const interval = setInterval(() => {
       if (checkNeeded.length) {
-        console.log(checkNeeded);
         ipcRenderer.send('check_sequences', checkNeeded);
       }
     }, 300000);

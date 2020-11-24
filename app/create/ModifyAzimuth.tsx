@@ -71,7 +71,6 @@ export default function SequenceModifyAzimuth() {
     dispatch(setSequencePoints(points));
     fs.readFile(path.join(path.join((electron.app || electron.remote.app).getAppPath(), '../'), 'settings.json'), 'utf8', (error, data) => {
       if (error) {
-        console.log(error);
         dispatch(setCurrentStep('copyright'));
         return;
       }

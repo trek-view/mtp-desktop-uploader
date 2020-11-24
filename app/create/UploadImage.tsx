@@ -210,13 +210,14 @@ export default function SequenceUploadImage() {
           </Typography>
           <Grid item xs={12}>
             {
-              attachType === 'video' ? <Button
-                onClick={openFileDialog2}
-                color="primary"
-                endIcon={<CloudUploadIcon />}
-                variant="contained"
-              >
-                Select Video File
+              attachType === 'video' ?
+                <Button
+                  onClick={openFileDialog2}
+                  color="primary"
+                  endIcon={<CloudUploadIcon />}
+                  variant="contained"
+                >
+                  Select Video File
                 </Button> :
                 <Button
                   onClick={openFileDialog2}
