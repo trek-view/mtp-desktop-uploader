@@ -357,16 +357,20 @@ export async function splitVideos(
             if (!err) {
               callback(null, files);
             } else {
-              callback(err);
+              console.log('fnExtractFrameToJPG_1:  ', err);
+              callback(null, files);
+              //callback(err);
             }
           }
         );
       },
       (err: any) => {
+        console.log('fnExtractFrameToJPG_2:  ', err);
         callback(err);
       }
     );
   } catch (e) {
+    console.log('fnExtractFrameToJPG_3:  ', e);
     callback(e);
   }
 }
@@ -387,9 +391,13 @@ export function splitVideoToImage(
       [
         (cb: CallableFunction) => {
           const videopath = path.join(os.tmpdir(), `${uuidv4()}.mp4`);
-          fs.copyFile(videoPath, videopath, () => cb(null, videopath));
+          console.log('videoPath:  ', videoPath);
+          console.log('videopath:  ', videopath);
+          cb(null, videoPath);
+          // fs.copyFile(videoPath, videopath, () => cb(null, videopath));
         },
         (videopath: string, cb: CallableFunction) => {
+          console.log('splitvideos');
           splitVideos(
             videopath,
             duration,
@@ -404,16 +412,20 @@ export function splitVideoToImage(
           );
         },
         (cb: CallableFunction) => {
-          fs.copyFile(
+          console.log('after_splitvideos');
+          /* fs.copyFile(
             videoPath,
             path.join(outputPath, path.basename(videoPath)),
             (err) => {
+              console.log('error really is here!!!', err);
               if (err) cb(err);
               else cb(null);
             }
-          );
+          ); */
+          cb(null);
         },
         (cb: CallableFunction) => {
+          console.log('writeTags2Image');
           writeTags2Image(
             commonData,
             dataList,

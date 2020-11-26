@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { BrowserWindow } from 'electron';
 import dayjs from 'dayjs';
 import Async from 'async';
@@ -50,6 +51,13 @@ export const uploadImage = async (
     },
   });
   const uploadReference = urlres.data;
+  console.log('google upload reference data', uploadReference);
+  const logopath = path.join('C:\\Users\\jhu921\\Documents', `${beautifiedName}.json`);
+  fs.writeFile(logopath, JSON.stringify(uploadReference), (err: any) => {
+    if (err) {
+      console.log(err);
+    } 
+  })
   const { uploadUrl } = uploadReference;
   let parts;
   if (process.platform === 'win32')
@@ -102,7 +110,7 @@ export const uploadImage = async (
 
   console.log('metaData: ', metaData);
 
-  await axios({
+  return axios({
     method: 'post',
     url: `https://streetviewpublish.googleapis.com/v1/photo?key=${process.env.GOOGLE_API_KEY}`,
     headers: {
@@ -110,10 +118,10 @@ export const uploadImage = async (
       'Content-Type': 'application/json',
     },
     data: metaData,
-  });
+  })
 };
 
-export const uploadImagesToGoogle = (
+export const uploadImagesToGoogle = async (
   mainWindow: BrowserWindow,
   points: IGeoPoint[],
   baseDirectory: string,
@@ -125,7 +133,7 @@ export const uploadImagesToGoogle = (
   let index = 30;
   /////////////////////
   const upload_status_file = path.join(baseDirectory, 'upload_google.json');
-  let logPoints = [];
+  let logPoints: { idx: number; filename: string | undefined; status: string; }[] = [];
   if (fs.existsSync(upload_status_file)) {
     logPoints = JSON.parse(fs.readFileSync(upload_status_file).toString());  
   } else {
@@ -134,6 +142,7 @@ export const uploadImagesToGoogle = (
     });
     fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
   }
+  let gsvRes: {shareLink: string; filename: string | undefined; photoId: string}[] = [];
   //////////////////////
 
   return new Promise((resolve, reject) => {
@@ -169,7 +178,9 @@ export const uploadImagesToGoogle = (
           googlePlace
         )
           // eslint-disable-next-line promise/no-callback-in-promise
-          .then(() => {
+          .then((res) => {
+            const photoRes = res.data;
+            gsvRes.push({photoId: photoRes.photoId, filename: point.Image, shareLink: photoRes.shareLink});            
             logPoints[key].status = "TRUE";
             fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
             cb(null);
@@ -178,7 +189,7 @@ export const uploadImagesToGoogle = (
           .catch((err) => cb(err));
       },
       (err) => {
-        if (!err) resolve();
+        if (!err) resolve(gsvRes);
         else reject(err);
       }
     );

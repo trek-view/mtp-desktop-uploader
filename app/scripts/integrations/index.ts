@@ -84,7 +84,8 @@ export default async (
 
   if (google && googleToken) {
     try {
-      await uploadImagesToGoogle(
+      let gsvRes: {photoId: string, filename: string; shareLink: string}[] = [];
+      gsvRes = await uploadImagesToGoogle(
         mainWindow,
         points,
         baseDirectory,
@@ -92,6 +93,18 @@ export default async (
         googlePlace
       );
       resultjson.sequence.destination.google = true;
+      if (gsvRes.length > 0)
+        resultjson.sequence.sharelink = gsvRes[0].shareLink;
+      gsvRes.map((gsvRow) => {
+        Object.keys(resultjson.photo).map((pid) => {
+          if (resultjson.photo[pid].original.filename === gsvRow.filename)
+            resultjson.photo[pid].photoId = gsvRow.photoId
+            resultjson.photo[pid].shareLink = gsvRow.shareLink
+        })
+      })
+
+      return gsvRes;      
+
     } catch (error) {
       return getError(axiosErrorHandler(error, 'GoolgeUploadImages'));
     }
@@ -106,6 +119,7 @@ export default async (
       mtpwToken
     );
 
+    
     if (mtpwError) {
       return getError(mtpwError);
     }
@@ -116,6 +130,8 @@ export default async (
 
     if (google && googleToken) {
       updateIntegrationStatusData.google_street_view = true;
+      //updateIntegrationStatusData.sharelink = '';
+      //place
     }
 
     if (strava && stravaToken) {
