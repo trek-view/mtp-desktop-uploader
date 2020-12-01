@@ -55,3 +55,5 @@ yarn.lock
 .env
 
 sequences
+
+settings.json
