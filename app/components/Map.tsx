@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: 250,
     backgroundSize: '100%',
-  },
+  }
 }));
 
 interface Props {
@@ -70,7 +70,7 @@ export default function MapBox(props: Props) {
   const mapId = `map_${name.replace(/\s/g, '_')}`;
   const [state, setState] = useState<State>({
     isopen: false,
-    selected: -1,
+    selected: 0,
     showMessage: false,
     // zoom: 22,
   });
@@ -125,8 +125,8 @@ export default function MapBox(props: Props) {
 
   const handleClose = () => {
     setState({
+      ...state,
       isopen: false,
-      selected: -1,
       showMessage: false,
     });
   };
@@ -353,23 +353,23 @@ export default function MapBox(props: Props) {
   }, [filteredpoints, map, name, showPopup]);
 
   useEffect(() => {
-    if (!map) {
-      const newMap = new mapboxgl.Map({
-        container: mapId,
-        style: 'mapbox://styles/mapbox/streets-v9',
-        center: centerPoint(),
-        zoom: [16],
-      });
+    // if (!map) {
+    const newMap = new mapboxgl.Map({
+      container: mapId,
+      style: 'mapbox://styles/mapbox/streets-v9',
+      center: map ? map.getCenter() : centerPoint(),
+      zoom: map ? [map.getZoom()] : [16],
+    });
 
-      newMap.scrollZoom.enable();
-      newMap.dragPan.enable();
-      newMap.dragRotate.enable();
+    newMap.scrollZoom.enable();
+    newMap.dragPan.enable();
+    newMap.dragRotate.enable();
 
-      newMap.on('load', (e) => {
-        setMap(newMap);
-      });
-    }
-  });
+    newMap.on('load', (e) => {
+      setMap(newMap);
+    });
+    // }
+  }, [state.selected]);
 
   return (
     <div>
@@ -379,7 +379,6 @@ export default function MapBox(props: Props) {
             id={mapId}
             style={{ width: '100%', height: `${height.toString()}px` }}
           />
-
           <Modal open={state.isopen} onClose={handleClose}>
             {modalBody}
           </Modal>
