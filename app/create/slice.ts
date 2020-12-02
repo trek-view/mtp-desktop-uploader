@@ -62,6 +62,10 @@ const initialState = {
   numberOfDivisions: 1,
   completedDivisions: 0,
   error: null,
+  uploadError: false,
+  updateResult: {},
+  updatePoints: [],
+  baseDirectory: ''
 };
 
 const createSequenceSlice = createSlice({
@@ -308,6 +312,18 @@ const createSequenceSlice = createSlice({
       if (!state.error && payload) state.error = payload;
       else if (!payload) state.error = null;
     },
+    setUploadError: (state, { payload }) => {
+      state.uploadError = payload;
+    },
+    setUpdateResult: (state, { payload }) => {
+      state.updateResult = payload;
+    },
+    setUpdatePoints: (state, { payload }) => {
+      state.updatePoints = payload;
+    },
+    setBaseDirectory: (state, { payload }) => {
+      state.baseDirectory = payload;
+    },
     setGooglePlace: (state, { payload }) => {
       state.steps.googlePlace = payload;
     },
@@ -360,6 +376,10 @@ export const {
   updateDestination,
   setDestination,
   setCopyright,
+  setUploadError,
+  setUpdateResult,
+  setUpdatePoints,
+  setBaseDirectory,
   setGooglePlace,
   setMultiPartProcessingMode,
   setNumberOfDivisions,
@@ -505,9 +525,20 @@ export const setSequenceError = (error: any): AppThunk => {
   return (dispatch, getState) => {
     const state = getState();
     if (state.create.step.current === 'processPage') {
-      dispatch(goToPrevStep());
+      // dispatch(goToPrevStep());
+      // dispatch(setUploadError());
     }
     dispatch(setError(error));
+  };
+};
+
+export const setSequenceUploadError = (error: any, result: any, points: IGeoPoint[], dir: string): AppThunk => {
+  return (dispatch) => {
+    dispatch(setError(error));
+    dispatch(setUploadError(true));
+    dispatch(setUpdateResult(result));
+    dispatch(setUpdatePoints(points));
+    dispatch(setBaseDirectory(dir));
   };
 };
 
@@ -617,6 +648,14 @@ export const selSequenceAzimuth = (state: RootState) =>
   state.create.steps.azimuth;
 
 export const selError = (state: RootState) => state.create.error;
+
+export const selUploadError = (state: RootState) => state.create.uploadError;
+
+export const selUpdateResult = (state: RootState) => state.create.updateResult;
+
+export const selUpdatePoints = (state: RootState) => state.create.updatePoints;
+
+export const selBaseDirectory = (state: RootState) => state.create.baseDirectory;
 
 export const selBlur = (state: RootState) => state.create.steps.blur;
 

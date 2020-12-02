@@ -74,6 +74,7 @@ export default function MapBox(props: Props) {
     showMessage: false,
     // zoom: 22,
   });
+  const [selectedCount, setSelectedCount] = useState(1);
 
   const [map, setMap] = useState<Map | null>(null);
 
@@ -104,6 +105,7 @@ export default function MapBox(props: Props) {
       selected: idx,
       showMessage: false,
     });
+    changeSelectedCount();
   };
 
   const nextImage = () => {
@@ -112,6 +114,7 @@ export default function MapBox(props: Props) {
       showMessage: false,
       selected: (state.selected + 1) % filteredpoints.length,
     });
+    changeSelectedCount();
   };
 
   const prevImage = () => {
@@ -121,7 +124,12 @@ export default function MapBox(props: Props) {
       selected:
         (filteredpoints.length + state.selected - 1) % filteredpoints.length,
     });
+    changeSelectedCount();
   };
+
+  const changeSelectedCount = () => {
+    setSelectedCount((selectedCount + 1) % 15);
+  }
 
   const handleClose = () => {
     setState({
@@ -353,23 +361,24 @@ export default function MapBox(props: Props) {
   }, [filteredpoints, map, name, showPopup]);
 
   useEffect(() => {
-    // if (!map) {
-    const newMap = new mapboxgl.Map({
-      container: mapId,
-      style: 'mapbox://styles/mapbox/streets-v9',
-      center: map ? map.getCenter() : centerPoint(),
-      zoom: map ? [map.getZoom()] : [16],
-    });
+    console.log(selectedCount)
+    if (selectedCount === 14 || !map) {
+      const newMap = new mapboxgl.Map({
+        container: mapId,
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: map ? map.getCenter() : centerPoint(),
+        zoom: map ? [map.getZoom()] : [16],
+      });
 
-    newMap.scrollZoom.enable();
-    newMap.dragPan.enable();
-    newMap.dragRotate.enable();
+      newMap.scrollZoom.enable();
+      newMap.dragPan.enable();
+      newMap.dragRotate.enable();
 
-    newMap.on('load', (e) => {
-      setMap(newMap);
-    });
-    // }
-  }, [state.selected]);
+      newMap.on('load', (e) => {
+        setMap(newMap);
+      });
+    }
+  }, [selectedCount]);
 
   return (
     <div>

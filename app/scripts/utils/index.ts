@@ -9,7 +9,7 @@ import { Result, Summary } from '../../types/Result';
 
 export const resultdirectory = 'sequences';
 
-export const resultdirectorypath = (app: App) =>{
+export const resultdirectorypath = (app: App) => {
   // path.resolve(app.getAppPath(), `../${resultdirectory}`);
   let basepath = app.getPath('home');
   const mtpPath = path.join(basepath, 'MTP');
@@ -17,7 +17,7 @@ export const resultdirectorypath = (app: App) =>{
 
   return basepath;
 }
- 
+
 
 export const tempLogo = 'output.png';
 
@@ -26,7 +26,7 @@ export const removeTempFiles = async (app: App) => {
   let basepath = app.getPath('home');
   const mtpPath = path.join(basepath, 'MTP');
   if (!fs.existsSync(mtpPath)) {
-    fs.mkdirSync(mtpPath, {recursive: true});
+    fs.mkdirSync(mtpPath, { recursive: true });
   }
   basepath = path.resolve(basepath, 'MTP');
 
@@ -76,9 +76,9 @@ export function getDistance(point1: any, point2: any) {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c;
   return d;
@@ -115,8 +115,8 @@ export function createdData2List(data: Result): Summary {
     camera: sequence.uploader_camera,
     destination: sequence.destination
       ? {
-          ...sequence.destination,
-        }
+        ...sequence.destination,
+      }
       : {},
   };
 }
@@ -239,9 +239,9 @@ export function discardPointsBySeconds(
     }
 
     const nextPoint = points[nextIdx];
-    
+
     let timediff = nextPoint.getDate().diff(point.getDate(), 'millisecond');
-    if (timediff===0) timediff = nextPoint.getDateOriginal().diff(point.getDateOriginal(), 'millisecond');
+    if (timediff === 0) timediff = nextPoint.getDateOriginal().diff(point.getDateOriginal(), 'millisecond');
 
     if (
       timediff >=
@@ -279,6 +279,16 @@ export const errorHandler = (
   }
 };
 
+export const uploadErrorHandler = (
+  mainWindow: BrowserWindow | null,
+  err: any,
+  result: any,
+  points: IGeoPoint[],
+  dir: string
+) => {
+  sendToClient(mainWindow, 'upload_error', JSON.stringify(err), result, points, dir);
+};
+
 export const removeDirectory = async (directoryPath: string) => {
   if (fs.existsSync(directoryPath)) {
     await rimraf.sync(directoryPath);
@@ -290,11 +300,11 @@ export const resetSequence = async (sequence: any, app: App) => {
   let basepath = app.getPath('home');
   const mtpPath = path.join(basepath, 'MTP');
   if (!fs.existsSync(mtpPath)) {
-    fs.mkdirSync(mtpPath, {recursive: true});
+    fs.mkdirSync(mtpPath, { recursive: true });
   }
   basepath = path.resolve(basepath, 'MTP', 'app');
   await Promise.all([
-    removeDirectory(getSequenceBasePath(sequence.steps.name,basepath)),
+    removeDirectory(getSequenceBasePath(sequence.steps.name, basepath)),
     removeTempFiles(app),
   ]);
 };

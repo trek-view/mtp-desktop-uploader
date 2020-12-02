@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import Async from 'async';
 import tokenStore from '../tokens';
 import { IGeoPoint } from '../../types/IGeoPoint';
+import { GooglePhotoRes } from '../../types/Result';
 import { sendToClient } from '../utils';
 
 const electron = require('electron');
@@ -51,13 +52,6 @@ export const uploadImage = async (
     },
   });
   const uploadReference = urlres.data;
-  console.log('google upload reference data', uploadReference);
-  const logopath = path.join('C:\\Users\\jhu921\\Documents', `${beautifiedName}.json`);
-  fs.writeFile(logopath, JSON.stringify(uploadReference), (err: any) => {
-    if (err) {
-      console.log(err);
-    } 
-  })
   const { uploadUrl } = uploadReference;
   let parts;
   if (process.platform === 'win32')
@@ -127,7 +121,7 @@ export const uploadImagesToGoogle = async (
   baseDirectory: string,
   messageChannelName: string,
   googlePlace?: string
-) => {
+): Promise<GooglePhotoRes[]> => {
   let token = tokenStore.getToken('google');
 
   let index = 30;
@@ -135,14 +129,14 @@ export const uploadImagesToGoogle = async (
   const upload_status_file = path.join(baseDirectory, 'upload_google.json');
   let logPoints: { idx: number; filename: string | undefined; status: string; }[] = [];
   if (fs.existsSync(upload_status_file)) {
-    logPoints = JSON.parse(fs.readFileSync(upload_status_file).toString());  
+    logPoints = JSON.parse(fs.readFileSync(upload_status_file).toString());
   } else {
     points.map((point, idx) => {
       logPoints.push({ idx: idx + 1, filename: point.Image, status: 'PENDING' });
     });
     fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
   }
-  let gsvRes: {shareLink: string; filename: string | undefined; photoId: string}[] = [];
+  let gsvRes: { shareLink: string; filename: string | undefined; photoId: string }[] = [];
   //////////////////////
 
   return new Promise((resolve, reject) => {
@@ -180,7 +174,7 @@ export const uploadImagesToGoogle = async (
           // eslint-disable-next-line promise/no-callback-in-promise
           .then((res) => {
             const photoRes = res.data;
-            gsvRes.push({photoId: photoRes.photoId, filename: point.Image, shareLink: photoRes.shareLink});            
+            gsvRes.push({ photoId: photoRes.photoId, filename: point.Image, shareLink: photoRes.shareLink });
             logPoints[key].status = "TRUE";
             fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
             cb(null);
@@ -225,7 +219,7 @@ export const getGoogleRefreshToken = async (refreshToken: string) => {
         refresh_token: refreshToken,
         client_id: process.env.GOOGLE_CLIENT_ID,
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        grant_type: 'refresh_token', 
+        grant_type: 'refresh_token',
         access_type: 'offline',
         // prompt: 'consent',
       })
@@ -244,6 +238,6 @@ export const getGoogleRefreshToken = async (refreshToken: string) => {
     //   error
     // );
   }
-  
+
   return newAccessToken;
 };

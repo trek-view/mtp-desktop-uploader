@@ -32,6 +32,7 @@ import {
   getSequenceBasePath,
   getOriginalBasePath,
   errorHandler,
+  uploadErrorHandler,
   resetSequence,
   removeTempFiles,
   getSequenceOutputPath,
@@ -50,7 +51,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
   let basepath = app.getPath('home');
   const mtpPath = path.join(basepath, 'MTP');
   if (!fs.existsSync(mtpPath)) {
-    fs.mkdirSync(mtpPath, {recursive: true});
+    fs.mkdirSync(mtpPath, { recursive: true });
   }
   basepath = path.resolve(basepath, 'MTP', 'app');
   // const basepath = app.getAppPath();
@@ -87,13 +88,13 @@ export default (mainWindow: BrowserWindow, app: App) => {
       corrupted: boolean
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
-        fs.mkdirSync(resultdirectorypath(app), {recursive: true});
+        fs.mkdirSync(resultdirectorypath(app), { recursive: true });
       }
       const sequencebasepath = getSequenceBasePath(seqname, basepath);
       if (fs.existsSync(sequencebasepath)) {
         await rimraf.sync(sequencebasepath);
       }
-      fs.mkdirSync(sequencebasepath, {recursive: true});
+      fs.mkdirSync(sequencebasepath, { recursive: true });
 
       let outputPath = getOriginalBasePath(seqname, basepath);
       //outputPath = outputPath.replace(/ /g, '%20');
@@ -117,7 +118,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
         try {
-          fs.mkdirSync(resultdirectorypath(app), {recursive: true});
+          fs.mkdirSync(resultdirectorypath(app), { recursive: true });
         } catch (e) {
           errorHandler(mainWindow, e);
           return;
@@ -185,7 +186,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     ) => {
       if (!fs.existsSync(resultdirectorypath(app))) {
         try {
-          fs.mkdirSync(resultdirectorypath(app), {recursive: true});
+          fs.mkdirSync(resultdirectorypath(app), { recursive: true });
         } catch (e) {
           errorHandler(mainWindow, e);
           return;
@@ -299,6 +300,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
   );
 
   ipcMain.on('update_images', async (_event: IpcMainEvent, sequence: any, originalSequenceName: string) => {
+
     // eslint-disable-next-line global-require
     const { buildGPX, GarminBuilder } = require('gpx-builder');
     const { Point } = GarminBuilder.MODELS;
@@ -352,7 +354,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       outputType,
       basepath
     );
-    
+
     const gpxData = new GarminBuilder();
 
     const gpxPoints = points.map((p: IGeoPoint) => {
@@ -393,16 +395,47 @@ export default (mainWindow: BrowserWindow, app: App) => {
       return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
     if (error) {
+      return uploadErrorHandler(mainWindow, error, resultjson, points, baseDirectory);
+    }
+  });
+
+  ipcMain.on('resume_images', async (_event: IpcMainEvent, sequence: any, resultjson: any, points: IGeoPoint[], baseDirectory: string, originalSequenceName: string) => {
+
+    // eslint-disable-next-line global-require
+    const settings = sequence.steps;
+
+    const { result, error } = await integrateSequence(
+      mainWindow,
+      settings.destination,
+      resultjson,
+      points,
+      baseDirectory,
+      basepath,
+      'loaded_message',
+      settings.googlePlace
+    );
+
+    if (result) {
+      fs.writeFileSync(
+        getSequenceLogPath(settings.name, basepath),
+        JSON.stringify(result)
+      );
+
+      await removeTempFiles(app);
+
+      return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
+    }
+    if (error) {
       return errorHandler(mainWindow, error);
     }
   });
 
   ipcMain.on(
-    'sequences', 
+    'sequences',
     async (_event: IpcMainEvent) => {
 
       if (!fs.existsSync(resultdirectorypath(app))) {
-        fs.mkdirSync(resultdirectorypath(app), {recursive: true});
+        fs.mkdirSync(resultdirectorypath(app), { recursive: true });
       }
       const sequencesDirectories = fs
         .readdirSync(resultdirectorypath(app))
@@ -441,7 +474,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
         return dayjs(a.created).isBefore(dayjs(b.created)) ? 1 : -1;
       });
       sendToClient(mainWindow, 'loaded_sequences', summaries);
-  });
+    });
 
   ipcMain.on(
     'check_sequences',

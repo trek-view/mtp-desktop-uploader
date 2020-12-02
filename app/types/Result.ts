@@ -13,6 +13,7 @@ export interface Destination {
 }
 
 export interface Sequence {
+  [x: string]: string;
   id: string;
   distance_km: number;
   earliest_time?: string;

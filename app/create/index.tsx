@@ -60,6 +60,7 @@ import {
   setSequenceGpxPoints,
   setCurrentStep,
   setSequenceError,
+  setSequenceUploadError,
   selError,
   setError,
   setInit,
@@ -158,6 +159,10 @@ export default function CreatePageWrapper() {
 
     ipcRenderer.on('error', (_event: IpcRendererEvent, err) => {
       dispatch(setSequenceError(err));
+    });
+
+    ipcRenderer.on('upload_error', (_event: IpcRendererEvent, err, result, points, directory) => {
+      dispatch(setSequenceUploadError(err, result, points, directory));
     });
 
     return () => {

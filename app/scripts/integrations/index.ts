@@ -40,7 +40,6 @@ export default async (
   const googleToken = tokenStore.getToken('google');
   const stravaToken = tokenStore.getToken('strava');
 
-  console.log(mapillaryToken, googleToken, mtpwToken, stravaToken);
   const { mapillary, mtp, google, strava } = settings;
 
   // if (!mtp || !mtpwToken) return { result: resultjson };
@@ -84,8 +83,7 @@ export default async (
 
   if (google && googleToken) {
     try {
-      let gsvRes: {photoId: string, filename: string; shareLink: string}[] = [];
-      gsvRes = await uploadImagesToGoogle(
+      let gsvRes = await uploadImagesToGoogle(
         mainWindow,
         points,
         baseDirectory,
@@ -102,9 +100,9 @@ export default async (
           if (resultjson.photo[pid].original.filename === gsvRow.filename) {
             resultjson.photo[pid].photoId = gsvRow.photoId
             resultjson.photo[pid].shareLink = gsvRow.shareLink
-          }          
+          }
         })
-      })
+      });
 
     } catch (error) {
       return getError(axiosErrorHandler(error, 'GoolgeUploadImages'));
