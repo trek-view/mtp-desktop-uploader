@@ -17,6 +17,7 @@ import {
   selBaseDirectory,
   selUpdateResult,
   selUpdatePoints,
+  setError,
   selUploadError
 } from './slice';
 
@@ -89,6 +90,7 @@ export default function SequenceProcessPage() {
   });
 
   const resumeMode = () => {
+    dispatch(setError(null));
     dispatch(setUploadError(false));
     ipcRenderer.send('resume_images', sequence, res_json, updatePoints, base_dir);
   };

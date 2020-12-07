@@ -8,7 +8,7 @@ import { Result } from '../../types/Result';
 import { Session } from '../../types/Session';
 import tokenStore from '../tokens';
 import axiosErrorHandler from '../utils/axios';
-import { sendToClient } from '../utils';
+import { getLogFilePath, sendToClient } from '../utils';
 import { updateIntegrationStatusDataAPI, postSequenceAPI } from './mtpw';
 
 import {
@@ -90,6 +90,7 @@ export default async (
         messageChannelName,
         googlePlace
       );
+
       resultjson.sequence.destination.google = true;
       if (googlePlace)
         resultjson.sequence.placeid = googlePlace;

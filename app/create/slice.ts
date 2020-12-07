@@ -535,7 +535,7 @@ export const setSequenceError = (error: any): AppThunk => {
 export const setSequenceUploadError = (error: any, result: any, points: IGeoPoint[], dir: string): AppThunk => {
   return (dispatch) => {
     dispatch(setError(error));
-    dispatch(setUploadError(true));
+    dispatch(setUploadError((error ? true : false)));
     dispatch(setUpdateResult(result));
     dispatch(setUpdatePoints(points));
     dispatch(setBaseDirectory(dir));

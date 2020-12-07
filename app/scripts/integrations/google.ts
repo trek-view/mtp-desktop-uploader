@@ -9,7 +9,7 @@ import Async from 'async';
 import tokenStore from '../tokens';
 import { IGeoPoint } from '../../types/IGeoPoint';
 import { GooglePhotoRes } from '../../types/Result';
-import { sendToClient } from '../utils';
+import { sendToClient, getLogFilePath } from '../utils';
 
 const electron = require('electron');
 
@@ -136,6 +136,9 @@ export const uploadImagesToGoogle = async (
     });
     fs.writeFileSync(upload_status_file, JSON.stringify(logPoints));
   }
+  fs.writeFileSync(path.join(baseDirectory, 'upload_images.json'),
+    JSON.stringify(logPoints)
+  );
   let gsvRes: { shareLink: string; filename: string | undefined; photoId: string }[] = [];
   //////////////////////
 

@@ -385,13 +385,8 @@ export default (mainWindow: BrowserWindow, app: App) => {
     );
 
     if (result) {
-      fs.writeFileSync(
-        getSequenceLogPath(settings.name, basepath),
-        JSON.stringify(result)
-      );
-
       await removeTempFiles(app);
-
+      uploadErrorHandler(mainWindow, null, null, [], '');
       return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
     if (error) {
@@ -416,17 +411,12 @@ export default (mainWindow: BrowserWindow, app: App) => {
     );
 
     if (result) {
-      fs.writeFileSync(
-        getSequenceLogPath(settings.name, basepath),
-        JSON.stringify(result)
-      );
-
       await removeTempFiles(app);
-
+      uploadErrorHandler(mainWindow, null, null, [], '');
       return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
     if (error) {
-      return errorHandler(mainWindow, error);
+      return uploadErrorHandler(mainWindow, error, resultjson, points, baseDirectory);
     }
   });
 

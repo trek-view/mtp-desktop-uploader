@@ -189,6 +189,10 @@ export function getSequenceLogPath(seqname: string, basepath: string): string {
   return path.join(getSequenceBasePath(seqname, basepath), `${logofile}.json`);
 }
 
+export function getLogFilePath(fname: string, seqname: string, basepath: string): string {
+  return path.join(getSequenceBasePath(seqname, basepath), `${fname}.json`);
+}
+
 export function getSequenceIntegrationLogPath(
   seqname: string,
   basepath: string,

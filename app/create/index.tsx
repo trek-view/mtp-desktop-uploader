@@ -141,6 +141,7 @@ export default function CreatePageWrapper() {
     });
 
     ipcRenderer.on('add-seq', (_event: IpcRendererEvent, seq, originalSequenceName, basepath) => {
+      // dispatch(set)
       dispatch(setAddSeq(seq));
       let completed = completedDivisions + 1;
       console.log("Completed " + completed + " out of " + numberOfDivisions);
