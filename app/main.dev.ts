@@ -226,7 +226,7 @@ const createWindow = async () => {
         {
           label: 'Map the Paths Web',
           click() {
-            shell.openExternal('https://mtp.trekview.org');
+            shell.openExternal('https://www.mapthepaths.com');
           },
         },
         {
