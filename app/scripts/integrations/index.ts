@@ -106,7 +106,7 @@ export default async (
       });
 
     } catch (error) {
-      return getError(axiosErrorHandler(error, 'GoolgeUploadImages'));
+      return getError(axiosErrorHandler(error, 'GoogleUploadImages'));
     }
   }
 
@@ -125,10 +125,10 @@ export default async (
 
     const mtpwId = mtpwSequence.unique_id;
 
-    const updateIntegrationStatusData: { [key: string]: boolean } = {};
+    const updateIntegrationStatusData: { [key: string]: string } = {};
 
     if (google && googleToken) {
-      updateIntegrationStatusData.google_street_view = true;
+      updateIntegrationStatusData.google_street_view = resultjson.sequence.sharelink;
     }
 
     if (strava && stravaToken) {
