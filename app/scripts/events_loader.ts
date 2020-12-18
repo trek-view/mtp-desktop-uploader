@@ -383,6 +383,10 @@ export default (mainWindow: BrowserWindow, app: App) => {
       'loaded_message',
       settings.googlePlace
     );
+    fs.writeFileSync(
+      getSequenceLogPath(settings.name, basepath),
+      JSON.stringify(result)
+    );
 
     if (result) {
       await removeTempFiles(app);
@@ -408,6 +412,10 @@ export default (mainWindow: BrowserWindow, app: App) => {
       basepath,
       'loaded_message',
       settings.googlePlace
+    );
+    fs.writeFileSync(
+      getSequenceLogPath(settings.name, basepath),
+      JSON.stringify(result)
     );
 
     if (result) {
