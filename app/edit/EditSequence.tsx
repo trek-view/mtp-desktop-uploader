@@ -251,7 +251,7 @@ export default function EditSequence({ data }: Props) {
 
       let buttonTitle =
         tokens[integration] && tokens[integration].waiting
-          ? 'Logining to'
+          ? 'Confirm in browser'
           : 'Login to';
 
       if (tokens[integration] && tokens[integration].token) {
