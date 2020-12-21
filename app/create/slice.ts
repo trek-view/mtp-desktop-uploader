@@ -576,7 +576,9 @@ export const selPrevStep = (state: RootState) => {
 
 export const selGPXRequired = (state: RootState) =>
   state.create.points.filter(
-    (point: IGeoPoint) => typeof point.GPSDateTime === 'undefined'
+    (point: IGeoPoint) => {
+      return typeof point.GPSDateTime === 'undefined' && point.DateTimeOriginal === 'undefined'
+    }
   ).length > 0;
 
 export const selGPXImport = (state: RootState) => state.create.steps.gpx.import;

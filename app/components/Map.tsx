@@ -191,7 +191,7 @@ export default function MapBox(props: Props) {
               {`File Name: ${point.Image}`}
             </Typography>
             <Typography variant="caption" display="block">
-              {`GPS Time: ${point.GPSDateTime}`}
+              {`GPS Time: ${point.GPSDateTime ? point.GPSDateTime : point.DateTimeOriginal}`}
             </Typography>
             <Typography variant="caption" display="block">
               {`Heading / Azimuth (degrees): ${point.Azimuth ? point.Azimuth.toFixed(2) : 0
