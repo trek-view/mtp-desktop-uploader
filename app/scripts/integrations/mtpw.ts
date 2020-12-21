@@ -58,13 +58,14 @@ export const updateIntegrationStatusDataAPI = async (
   sequence: Sequence,
   seqId: string,
   basepath: string,
-  data: any  
+  data: any
 ) => {
   const upload_status_file = path.join(
     getSequenceBasePath(sequence.uploader_sequence_name, basepath),
     'upload_mtp.json'
   );
-  let logMTP = {};
+  fs.writeFileSync(upload_status_file, JSON.stringify(data));
+  /* let logMTP = {};
   if (fs.existsSync(upload_status_file)) {
     logMTP = JSON.parse(fs.readFileSync(upload_status_file).toString());
   } else {
@@ -73,7 +74,7 @@ export const updateIntegrationStatusDataAPI = async (
   }
   if (logMTP.status === 'TRUE') {
     return { }
-  }
+  } */
   const mtpwToken = tokenStore.getToken('mtp');
   const config = {
     method: 'put',
@@ -87,14 +88,14 @@ export const updateIntegrationStatusDataAPI = async (
 
   try {
     const res = await axios(config);
-    console.log('updateIntegrationStatusDataAPI: ', res.data);
+
     if (res.data.error) {
       return {
         seqError: `MTPWImportSequence: ${res.data.error}`,
       };
     }
-    logMTP.status = 'TRUE';
-    fs.writeFileSync(upload_status_file, JSON.stringify(logMTP));
+    /* logMTP.status = 'TRUE';
+    fs.writeFileSync(upload_status_file, JSON.stringify(logMTP)); */
     return {};
   } catch (error) {
     return {
