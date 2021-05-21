@@ -204,4 +204,4 @@
 	 * rgbquant.ts - part of Image Quantization Library
 	 */
 
-/** @license MIT License (c) copyright B Cavalier & J Hann */
+/** @license MIT License (c) copyright 2010-2014 original author or authors */

@@ -781,18 +781,16 @@ export function updateImages(
                 OutputType.raw,
                 basepath
               );
-              writeExifTags(inputfile, item, desc.photo, outputfile)
+              if (settings.nadirPath !== '' && logo) {
+                writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo)
                 .then(() => cb())
                 .catch((err) => cb(err));
-            },
-            (cb: CallableFunction) => {
-              writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo)
+              }
+              else{
+                writeExifTags(inputfile, item, desc.photo, outputfile)
                 .then(() => cb())
-                .catch((err) => {
-                  if (err) {
-                    cb(err);
-                  }
-                });
+                .catch((err) => cb(err));
+              }
             },
           ],
           (err) => {
