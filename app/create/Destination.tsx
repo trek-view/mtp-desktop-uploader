@@ -71,6 +71,7 @@ export default function Destination() {
         const multiPartRequireModify = sequence.passedPoints.requireModify.map((x) => x);
         let dividedRequireModify = multiPartRequireModify.division(500);
         dispatch(setNumberOfDivisions(dividedPoints.length));
+        console.log('sequence:',JSON.stringify(sequence));
         for (var i = 1; i <= dividedPoints.length; i++) {
           const sequenceJson = JSON.stringify(sequence);
           let partSequence = JSON.parse(sequenceJson);
@@ -157,7 +158,7 @@ export default function Destination() {
         />
       );
     });
-    
+
   return (
     <>
       <Grid item xs={12}>

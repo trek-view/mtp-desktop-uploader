@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import jimp from 'jimp';
 import rimraf from 'rimraf';
 import mkdirp from 'mkdirp';
+import {spawn} from 'cross-spawn'
 
 import { BrowserWindow } from 'electron';
 import { IGeoPoint } from '../types/IGeoPoint';
@@ -22,7 +23,7 @@ import {
   getSequenceImagePath,
   OutputType,
   getSequenceOutputFilePath,
-  getSequenceBasePath, 
+  getSequenceBasePath,
   discardPointsBySeconds,
   parseExifDateTime,
   sendToClient,
@@ -148,32 +149,32 @@ export function getPoint(
                   if (item.MAPLatitude != undefined) {
                     if (item.MAPLatitude > 0) {
                       tags = {
-                        ...tags, 
+                        ...tags,
                         GPSLatitudeRef: 'N'
                       }
                     } else {
                       tags = {
-                        ...tags, 
+                        ...tags,
                         GPSLatitudeRef: 'S'
                       }
                     }
                   }
-      
+
                   if (item.MAPLongitude != undefined) {
                     if (item.MAPLongitude > 0) {
                       tags = {
-                        ...tags, 
+                        ...tags,
                         GPSLongitudeRef: 'E'
                       }
                     } else {
                       tags = {
-                        ...tags, 
+                        ...tags,
                         GPSLongitudeRef: 'W'
                       }
                     }
                   }
                 }
-                
+
                 return cb(null, item);
               })
               .catch((err: Error) => {
@@ -238,7 +239,7 @@ export const calculatePoints = (
   next: CallableFunction
 ) => {
   try {
-    
+
     if (points.filter((p: IGeoPoint) => p.GPSDateTime).length) {
       points.sort((firstItem: IGeoPoint, secondItem: IGeoPoint) => {
         if (secondItem.getDate().isBefore(firstItem.getDate())) return 1;
@@ -252,7 +253,7 @@ export const calculatePoints = (
             item.getDate().diff(points[idx + 1].getDate(), 'second') > 120
           );
         }).length > 0;
-        
+
       if (existedFarPoint) {
         throw new Error('some photos are too far apart by time');
       }
@@ -337,6 +338,90 @@ export function loadImageFiles(
 }
 
 export function modifyLogo(logourl: string, outputfile: string) {
+  return new Promise((resolve,reject)=>{
+    const valid_RotateAsync = jimp
+      .read(logourl)
+      .then((logo:any)=>{
+        if (
+          logo.bitmap.width < 500 ||
+          logo.bitmap.height !== logo.bitmap.width
+        ) {
+          throw new Error(
+            'Allowed filetypes for nadir cap are: jpg, png, tif file only. Must be at least 500px x 500px and square.'
+          );
+        }
+        //magick "n.png" -rotate 180 -strip nadir_patcher_temp_s\temp_result1.png
+        return spawn.sync('magick', [`${logourl}`, '-rotate', '180', '-strip',`${outputfile}_temp_1.png`]);
+      })
+      .catch((err)=>{
+        console.log("validateErr:",err)
+        reject(err);
+      })
+    const distort_Async = valid_RotateAsync
+    .then((result:any)=>{
+
+      /**
+       *
+       * magick "nadir_patcher_temp_s\temp_result1.png" -distort DePolar 0  nadir_patcher_temp_s\temp_result2.png
+
+        magick "nadir_patcher_temp_s\temp_result2.png" -flip  nadir_patcher_temp_s\temp_result3.png
+
+        magick "nadir_patcher_temp_s\temp_result3.png" -flop  nadir_patcher_temp_s\temp_result4.png
+
+        ffmpeg -y -i nadir_patcher_temp_s\temp_result4.png -vf scale=4096:245 nadir_patcher_temp_s\temp_result5.png
+       */
+      return spawn.sync('magick',[`${outputfile}_temp_1.png`, '-distort', 'DePolar','0',`${outputfile}_temp_2.png`])
+    })
+    .catch((err)=>{
+      console.log("spwanError:",err)
+      reject(err);
+    })
+    const flip_Async = distort_Async
+    .then((result:any)=>{
+
+      return spawn.sync('magick',[`${outputfile}_temp_2.png`, '-flip',`${outputfile}_temp_3.png`])
+
+    })
+    .catch((err)=>{
+      console.log("DistortError:",err);
+      reject(err);
+    })
+
+    const flop_Async = flip_Async
+    .then((result:any)=>{
+      return spawn.sync('magick',[`${outputfile}_temp_3.png`, '-flop',`${outputfile}`])
+    })
+    .catch((err)=>{
+      reject(err)
+    })
+
+    flop_Async
+    .then((result:any)=>{
+      return resolve();
+    })
+    .catch((err)=>{
+      reject(err)
+    })
+
+    /*
+    const height_Async = flop_Async
+    .then((result:any)=>{
+      return spawn.sync('ffmpeg',['-y','-i', `${outputfile}_temp_4`,'-vf','scale=4096:245',`${outputfile}`])
+    })
+    .catch((err)=>{
+      reject(err)
+    })
+    height_Async
+    .then((result:any)=>{
+      return resolve();
+    })
+    .catch((err)=>{
+      reject(err);
+    })
+    */
+  })
+
+  /*
   return new Promise((resolve, reject) => {
     const rotateAsync = jimp
       .read(logourl)
@@ -356,7 +441,7 @@ export function modifyLogo(logourl: string, outputfile: string) {
       });
 
     rotateAsync
-      // eslint-disable-next-line promise/always-return
+
       .then((logo: any) => {
         const outputheight = logo.bitmap.height / 2;
         const outputwidth = logo.bitmap.width;
@@ -405,6 +490,7 @@ export function modifyLogo(logourl: string, outputfile: string) {
         reject(err);
       });
   });
+  */
 }
 
 export async function addLogo(
@@ -488,12 +574,12 @@ export function writeExifTags(
             if (item.MAPLatitude != undefined) {
               if (item.MAPLatitude > 0) {
                 tags = {
-                  ...tags, 
+                  ...tags,
                   GPSLatitudeRef: 'N'
                 }
               } else {
                 tags = {
-                  ...tags, 
+                  ...tags,
                   GPSLatitudeRef: 'S'
                 }
               }
@@ -502,12 +588,12 @@ export function writeExifTags(
             if (item.MAPLongitude != undefined) {
               if (item.MAPLongitude > 0) {
                 tags = {
-                  ...tags, 
+                  ...tags,
                   GPSLongitudeRef: 'E'
                 }
               } else {
                 tags = {
-                  ...tags, 
+                  ...tags,
                   GPSLongitudeRef: 'W'
                 }
               }
@@ -774,7 +860,7 @@ export function updateImages(
                   if (err) console.log(err);
                 });
               }
-              
+
               const outputfile = getSequenceOutputFilePath(
                 settings.name,
                 settings.name.split(' ').join('_') + "_" + filename,

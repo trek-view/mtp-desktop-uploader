@@ -8,6 +8,7 @@ import Async from 'async';
 import url from 'url';
 import axios from 'axios';
 import FormData from 'form-data';
+import {spawn} from 'cross-spawn'
 
 import { App, ipcMain, BrowserWindow, IpcMainEvent, dialog } from 'electron';
 
@@ -242,7 +243,70 @@ export default (mainWindow: BrowserWindow, app: App) => {
         [key: string]: any;
       } = {};
       const templogofile = path.resolve(basepath, `../${uuidv4()}.png`);
+      const tempOutPut4 = path.resolve(basepath, `../${uuidv4()}output4.png`)
+      const tempOutPut5 = path.resolve(basepath, `../${uuidv4()}output5.png`)
 
+      //ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv="s=x:p=0" s.jpg
+      const getResoultion_Async = modifyLogo(nadirpath, tempOutPut4)
+            .then(()=>{
+              return spawn.sync('ffprobe',['-v','error','-select_streams','v:0','-show_entries','stream=width,height','-of','csv=s=x:p=0',`${imagepath}`])
+            })
+            .catch((err)=> {
+              console.log("probeError");
+              errorHandler(mainWindow,err)
+            });
+      getResoultion_Async
+      .then((result:any)=>{
+        console.log('ffprobe:',result) //"4096*2048"
+        //console.log("da:",da)
+        let resultoutput = result.output[1].toString('utf8');
+        let res = resultoutput.split('x');
+        console.log("imageRes:",res)
+        let width = parseInt(res[0]);
+        let height = parseInt(res[1]);
+        console.log("imageResHeight:",height)
+
+        return Async.eachOfLimit(
+          //Array(16),
+          Array(20),
+          1,
+          (_item: unknown, key: any, cb: CallableFunction) => {
+            const outputfile = path.resolve(basepath, `../${uuidv4()}.png`);
+            let percent = (1 + key) / 100;
+            let overlay_scale = Math.ceil(height * percent - 0.5);
+            let overlay_position = height - overlay_scale;
+            //"ffmpeg -y -i {} -vf scale={} {}".format(temp_output4,overlay_scale,temp_output5)
+            const over_scale_spawn = sPromise()
+            .then(()=>{
+              return spawn.sync('ffmpeg',['-y','-i',`${tempOutPut4}`,'-vf',`scale=${width}:${overlay_scale}`,`${tempOutPut5}`]);
+            })
+            let magickOut = over_scale_spawn
+            .then((overlayerr:any)=>{
+              return spawn.sync('magick',[`${imagepath}`,`${tempOutPut5}`,'-geometry',`+0+${overlay_position}`,'-composite',`${outputfile}`]);
+            })
+            magickOut
+            .then((magicerr:any)=>{
+              results[percent.toString()] = outputfile;
+                return cb();
+            })
+
+
+          },
+          (err) => {
+            if (err) {
+              errorHandler(mainWindow, err);
+            } else {
+              sendToClient(mainWindow, 'loaded_preview_nadir', {
+                logofile: tempOutPut4,
+                items: results,
+              });
+            }
+          }
+        );
+      })
+      .catch((err)=>errorHandler(mainWindow, err))
+
+      /*
       const modifyLogoAsync = modifyLogo(nadirpath, templogofile)
         .then(() => {
           return jimp.read(templogofile);
@@ -252,16 +316,16 @@ export default (mainWindow: BrowserWindow, app: App) => {
       modifyLogoAsync
         .then((logo: any) => {
           return Async.eachOfLimit(
-            Array(16),
+            //Array(16),
+            Array(20),
             1,
             (_item: unknown, key: any, cb: CallableFunction) => {
               const outputfile = path.resolve(basepath, `../${uuidv4()}.png`);
-              const percentage = (10 + key) / 100;
+              //const percentage = (10 + key) / 100;
+              const percentage = (1 + key) / 100;
               // const percentage = 0.15;
               const logoHeight = Math.round(height * percentage);
-
               logo.resize(width, logoHeight);
-              // eslint-disable-next-line promise/no-nesting
               const addLogoAsync = addLogo(
                 imagepath,
                 logo,
@@ -273,8 +337,6 @@ export default (mainWindow: BrowserWindow, app: App) => {
                   errorHandler(mainWindow, err);
                   cb(err);
                 });
-
-              // eslint-disable-next-line promise/no-nesting
               addLogoAsync
                 .then(() => {
                   results[percentage.toString()] = outputfile;
@@ -293,9 +355,9 @@ export default (mainWindow: BrowserWindow, app: App) => {
               }
             }
           );
-          // return addLogo(imagepath, logo, 0, height - logoHeight);
         })
         .catch((err) => errorHandler(mainWindow, err));
+        */
     }
   );
 
@@ -307,6 +369,10 @@ export default (mainWindow: BrowserWindow, app: App) => {
     const settings = sequence.steps;
 
     const { logofile, percentage } = sequence.steps.previewnadir;
+
+    console.log("logofile:",logofile)
+    console.log("percentage:",percentage)
+
     const logo = logofile !== '' ? await jimp.read(logofile) : null;
 
     if (logofile !== '' && logo) {
@@ -354,7 +420,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       outputType,
       basepath
     );
-
+      console.log('baseDirectory:',baseDirectory);
     const gpxData = new GarminBuilder();
 
     const gpxPoints = points.map((p: IGeoPoint) => {
@@ -697,3 +763,10 @@ export const sendTokenFromUrl = async (
     sendToken(mainWindow, key, token, basepath);
   }
 };
+function sPromise(){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      return resolve();
+    },1)
+  })
+}
