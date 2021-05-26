@@ -340,8 +340,11 @@ export default (mainWindow: BrowserWindow, app: App) => {
         .catch((err)=>{
           console.log("probeError");
         });
-      await getResoultion_Async
+      const getLogo_Async = getResoultion_Async
         .then((result:any)=>{
+          console.log("ffprobeReslt:",result.output[1].toString("utf8"))
+          console.log("ffprobeReslt:",result.output[2].toString("utf8"))
+
           let resultoutput = result.output[1].toString('utf8');
           let res = resultoutput.split('x');
           let width = parseInt(res[0]);
@@ -351,6 +354,11 @@ export default (mainWindow: BrowserWindow, app: App) => {
           logoOverlayPosition = height - overlay_scale;
           return spawn.sync('ffmpeg',['-y','-i',`${logofile}`,'-vf',`scale=${width}:${overlay_scale}`,`${newlogofile}`]);
         })
+      getLogo_Async
+      .then((result)=>{
+        console.log("getLogo_Async:",result.output[1].toString("utf8"))
+        console.log("getLogo_Async:",result.output[2].toString("utf8"))
+      })
     }
 
     const logo = logofile !== '' ? await jimp.read(logofile) : null;
