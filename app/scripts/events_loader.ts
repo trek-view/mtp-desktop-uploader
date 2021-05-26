@@ -38,6 +38,7 @@ import {
   removeTempFiles,
   getSequenceOutputPath,
   OutputType,
+  getSequenceImagePath,
 } from './utils';
 
 import axiosErrorHandler from './utils/axios';
@@ -257,14 +258,14 @@ export default (mainWindow: BrowserWindow, app: App) => {
             });
       getResoultion_Async
       .then((result:any)=>{
-        console.log('ffprobe:',result) //"4096*2048"
+
         //console.log("da:",da)
         let resultoutput = result.output[1].toString('utf8');
         let res = resultoutput.split('x');
-        console.log("imageRes:",res)
+
         let width = parseInt(res[0]);
         let height = parseInt(res[1]);
-        console.log("imageResHeight:",height)
+
 
         return Async.eachOfLimit(
           //Array(16),
@@ -306,58 +307,6 @@ export default (mainWindow: BrowserWindow, app: App) => {
       })
       .catch((err)=>errorHandler(mainWindow, err))
 
-      /*
-      const modifyLogoAsync = modifyLogo(nadirpath, templogofile)
-        .then(() => {
-          return jimp.read(templogofile);
-        })
-        .catch((err) => errorHandler(mainWindow, err));
-
-      modifyLogoAsync
-        .then((logo: any) => {
-          return Async.eachOfLimit(
-            //Array(16),
-            Array(20),
-            1,
-            (_item: unknown, key: any, cb: CallableFunction) => {
-              const outputfile = path.resolve(basepath, `../${uuidv4()}.png`);
-              //const percentage = (10 + key) / 100;
-              const percentage = (1 + key) / 100;
-              // const percentage = 0.15;
-              const logoHeight = Math.round(height * percentage);
-              logo.resize(width, logoHeight);
-              const addLogoAsync = addLogo(
-                imagepath,
-                logo,
-                0,
-                height - logoHeight
-              )
-                .then((image: any) => image.writeAsync(outputfile))
-                .catch((err: any) => {
-                  errorHandler(mainWindow, err);
-                  cb(err);
-                });
-              addLogoAsync
-                .then(() => {
-                  results[percentage.toString()] = outputfile;
-                  return cb();
-                })
-                .catch((err: any) => cb(err));
-            },
-            (err) => {
-              if (err) {
-                errorHandler(mainWindow, err);
-              } else {
-                sendToClient(mainWindow, 'loaded_preview_nadir', {
-                  logofile: templogofile,
-                  items: results,
-                });
-              }
-            }
-          );
-        })
-        .catch((err) => errorHandler(mainWindow, err));
-        */
     }
   );
 
@@ -369,9 +318,39 @@ export default (mainWindow: BrowserWindow, app: App) => {
     const settings = sequence.steps;
 
     const { logofile, percentage } = sequence.steps.previewnadir;
+    let newlogofile = logofile;
+    let logoOverlayPosition = -1;
 
-    console.log("logofile:",logofile)
-    console.log("percentage:",percentage)
+
+    if(logofile !== '')
+    {
+      let extension = logofile.split(".")[1];
+      newlogofile = `${logofile}_new.${extension}`;
+      const originalOnefile = getSequenceImagePath(
+        originalSequenceName,
+        '_1.jpg',
+        basepath
+      );
+      console.log(sPromise)
+      const getResoultion_Async = sPromise()
+        .then(()=>{
+          return spawn.sync('ffprobe',['-v','error','-select_streams','v:0','-show_entries','stream=width,height','-of','csv=s=x:p=0',`${originalOnefile}`])
+        })
+        .catch((err)=>{
+          console.log("probeError");
+        });
+      await getResoultion_Async
+        .then((result:any)=>{
+          let resultoutput = result.output[1].toString('utf8');
+          let res = resultoutput.split('x');
+          let width = parseInt(res[0]);
+          let height = parseInt(res[1]);
+
+          let overlay_scale = Math.ceil(height * percentage - 0.5);
+          logoOverlayPosition = height - overlay_scale;
+          return spawn.sync('ffmpeg',['-y','-i',`${logofile}`,'-vf',`scale=${width}:${overlay_scale}`,`${newlogofile}`]);
+        })
+    }
 
     const logo = logofile !== '' ? await jimp.read(logofile) : null;
 
@@ -408,7 +387,9 @@ export default (mainWindow: BrowserWindow, app: App) => {
       settings,
       originalSequenceName,
       logo,
-      basepath
+      basepath,
+      newlogofile,
+      logoOverlayPosition
     );
     let outputType = OutputType.raw;
     if (settings.nadirPath !== '') {
@@ -420,7 +401,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
       outputType,
       basepath
     );
-      console.log('baseDirectory:',baseDirectory);
+
     const gpxData = new GarminBuilder();
 
     const gpxPoints = points.map((p: IGeoPoint) => {

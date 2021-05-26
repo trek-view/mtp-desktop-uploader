@@ -402,95 +402,9 @@ export function modifyLogo(logourl: string, outputfile: string) {
     .catch((err)=>{
       reject(err)
     })
-
-    /*
-    const height_Async = flop_Async
-    .then((result:any)=>{
-      return spawn.sync('ffmpeg',['-y','-i', `${outputfile}_temp_4`,'-vf','scale=4096:245',`${outputfile}`])
-    })
-    .catch((err)=>{
-      reject(err)
-    })
-    height_Async
-    .then((result:any)=>{
-      return resolve();
-    })
-    .catch((err)=>{
-      reject(err);
-    })
-    */
   })
 
-  /*
-  return new Promise((resolve, reject) => {
-    const rotateAsync = jimp
-      .read(logourl)
-      .then((logo: any) => {
-        if (
-          logo.bitmap.width < 500 ||
-          logo.bitmap.height !== logo.bitmap.width
-        ) {
-          throw new Error(
-            'Allowed filetypes for nadir cap are: jpg, png, tif file only. Must be at least 500px x 500px and square.'
-          );
-        }
-        return logo.rotate(270).flip(false, true);
-      })
-      .catch((err) => {
-        reject(err);
-      });
 
-    rotateAsync
-
-      .then((logo: any) => {
-        const outputheight = logo.bitmap.height / 2;
-        const outputwidth = logo.bitmap.width;
-        const radius = logo.bitmap.height / 2;
-        const cx = logo.bitmap.width / 2;
-        const cy = logo.bitmap.height / 2;
-        // eslint-disable-next-line no-new
-        new jimp(
-          outputwidth,
-          outputheight,
-          0x000000ff,
-          (err: any, outputlogo: any) => {
-            if (err) {
-              return reject(err);
-            }
-            for (let y = 0; y < outputheight; y += 1) {
-              for (let x = 0; x < outputwidth; x += 1) {
-                const thetadeg = 180 - (x * 360.0) / outputwidth;
-                const phideg = 90 - (y * 90.0) / outputheight;
-                const r = Math.sin((phideg * Math.PI) / 180);
-                const dx = Math.cos((thetadeg * Math.PI) / 180) * r;
-                const dy = Math.sin((thetadeg * Math.PI) / 180) * r;
-                const inputx = Math.round(dx * radius + cx);
-                const inputy = Math.round(dy * radius + cy);
-                outputlogo.setPixelColor(
-                  logo.getPixelColor(inputx, inputy),
-                  x,
-                  y
-                );
-              }
-            }
-
-            outputlogo
-              .crop(0, 25, outputwidth, outputheight - 25)
-              .writeAsync(outputfile)
-              .then(() => {
-                return resolve();
-              })
-              .catch((err: any) => {
-                reject(err);
-              });
-          }
-        );
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-  */
 }
 
 export async function addLogo(
@@ -499,7 +413,9 @@ export async function addLogo(
   x: number,
   y: number
 ) {
+  console.log('logoStart:',Date.now())
   const image = await jimp.read(imageurl);
+  console.log('logoRead:',Date.now())
 
   const blendmode: any = {
     mode: jimp.BLEND_SOURCE_OVER,
@@ -622,7 +538,9 @@ export function writeNadirImages(
   originalSequenceName: string,
   description: Description,
   basepath: string,
-  logo: any
+  logo: any,
+  newlogofile: string,
+  logoOverlayPosition:number
 ) {
   return new Promise((resolve, reject) => {
     if (settings.nadirPath !== '' && logo) {
@@ -639,25 +557,23 @@ export function writeNadirImages(
         basepath
       );
 
-      const addLogoAsync = addLogo(
-        existingfile,
-        logo,
-        0,
-        item.height - settings.previewnadir.percentage * item.height
-      )
-        .then((image) => {
-          return image.writeAsync(outputfile);
+
+      const addLogoAsync = sPromise()
+        .then(()=>{
+          return spawn.sync('magick',[`${existingfile}`,`${newlogofile}`,'-geometry',`+0+${logoOverlayPosition}`,'-composite',`${outputfile}`]);
         })
         .catch((err) => {
+          console.log('saveError:',err)
           return reject();
         });
+
       const writeExifAsync = addLogoAsync
-        .then(() =>
+        .then(() =>{
           writeExifTags(outputfile, item, {
             ...description.photo,
             MTPImageCopy: 'final_nadir',
           })
-        )
+        })
         .catch((err) => {
           return reject();
         });
@@ -678,7 +594,9 @@ export function updateImages(
   settings: any,
   originalSequenceName: string,
   logo: any,
-  basepath: string
+  basepath: string,
+  newlogofile: string,
+  logoOverlayPosition: number
 ): Promise<Result> {
   return new Promise((resolve, reject) => {
     const sequenceId = uuidv4();
@@ -820,6 +738,21 @@ export function updateImages(
     let beautifiedName = settings.name.split('_').join(' ');
     beautifiedName = beautifiedName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
+    if (settings.nadirPath !== '' && newlogofile !== '') {
+      const outputNadirSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'final_nadir');
+
+      fs.access(outputNadirSeqPath, (error)=>{
+        if(error){
+          fs.mkdir(outputNadirSeqPath, {recursive: true}, (err) => {
+            if (err) {
+              console.log(err);
+            }
+          });
+        }
+      })
+    }
+
+
     Async.eachOfLimit(
       updatedPoints,
       1,
@@ -834,12 +767,16 @@ export function updateImages(
         Async.parallel(
           [
             (cb: CallableFunction) => {
+
               const filename = item.Image || '';
+
               const inputfile = getSequenceImagePath(
                 originalSequenceName,
                 filename,
                 basepath
               );
+
+
               if (settings.name != originalSequenceName) {
                 const outputOriginalFile = getSequenceImagePath(
                   settings.name,
@@ -847,6 +784,7 @@ export function updateImages(
                   basepath
                 );
                 const outputOriginalSeqPath = path.join(getSequenceBasePath(settings.name, basepath), 'originals');
+
                 fs.exists(outputOriginalSeqPath, (existed: boolean) => {
                   if (!existed) {
                     fs.mkdir(outputOriginalSeqPath, {recursive: true}, (err) => {
@@ -856,6 +794,7 @@ export function updateImages(
                     });
                   }
                 });
+
                 fs.copyFile(inputfile, outputOriginalFile, (err: any) => {
                   if (err) console.log(err);
                 });
@@ -867,8 +806,10 @@ export function updateImages(
                 OutputType.raw,
                 basepath
               );
-              if (settings.nadirPath !== '' && logo) {
-                writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo)
+
+              if (settings.nadirPath !== '' && newlogofile !== '') {
+
+                writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo,newlogofile,logoOverlayPosition)
                 .then(() => cb())
                 .catch((err) => cb(err));
               }
@@ -903,4 +844,11 @@ export function updateImages(
       }
     );
   });
+}
+function sPromise(){
+  return new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+      return resolve();
+    },1)
+  })
 }
