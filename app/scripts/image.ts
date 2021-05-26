@@ -571,8 +571,10 @@ export function writeNadirImages(
         });
 
       const writeExifAsync = addLogoAsync
-        .then(() =>{
-          console.log("ImageSaved");
+        .then((result) =>{
+          console.log("ImageSaved",result.output[1].toString("utf8"));
+          console.log("ImageSaved",result.output[2].toString("utf8"));
+
 
           writeExifTags(outputfile, item, {
             ...description.photo,
@@ -752,6 +754,7 @@ export function updateImages(
             if (err) {
               console.log(err);
             }
+            console.log("NadirFileMade");
           });
         }
       })
