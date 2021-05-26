@@ -324,11 +324,12 @@ export default (mainWindow: BrowserWindow, app: App) => {
 
     if(logofile !== '')
     {
+     // console.log("point:",sequence.points[0])
       let extension = logofile.split(".")[1];
       newlogofile = `${logofile}_new.${extension}`;
       const originalOnefile = getSequenceImagePath(
         originalSequenceName,
-        '_1.jpg',
+        sequence.points[0].Image,
         basepath
       );
       console.log(sPromise)
