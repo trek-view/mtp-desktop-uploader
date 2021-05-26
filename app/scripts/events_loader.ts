@@ -325,8 +325,13 @@ export default (mainWindow: BrowserWindow, app: App) => {
     if(logofile !== '')
     {
      // console.log("point:",sequence.points[0])
-      let extension = logofile.split(".")[1];
-      newlogofile = `${logofile}_new.${extension}`;
+      let extension = logofile.split(".");
+
+      newlogofile = `${logofile}_new.${extension[extension.length-1]}`;
+      console.log("logofile:",logofile)
+      console.log("extension:",extension)
+      console.log("newlogofile:",newlogofile)
+
       const originalOnefile = getSequenceImagePath(
         originalSequenceName,
         sequence.points[0].Image,
@@ -445,7 +450,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     );
 
     if (result) {
-      // await removeTempFiles(app);
+       await removeTempFiles(app);
       uploadErrorHandler(mainWindow, null, null, [], '');
       return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
