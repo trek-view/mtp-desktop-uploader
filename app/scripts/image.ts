@@ -560,6 +560,9 @@ export function writeNadirImages(
 
       const addLogoAsync = sPromise()
         .then(()=>{
+          console.log("ImageSaving:",outputfile);
+          console.log("ImageSaving_ExistingFile:",existingfile);
+
           return spawn.sync('magick',[`${existingfile}`,`${newlogofile}`,'-geometry',`+0+${logoOverlayPosition}`,'-composite',`${outputfile}`]);
         })
         .catch((err) => {
@@ -569,6 +572,8 @@ export function writeNadirImages(
 
       const writeExifAsync = addLogoAsync
         .then(() =>{
+          console.log("ImageSaved");
+
           writeExifTags(outputfile, item, {
             ...description.photo,
             MTPImageCopy: 'final_nadir',
@@ -808,7 +813,7 @@ export function updateImages(
               );
 
               if (settings.nadirPath !== '' && newlogofile !== '') {
-
+                console.log('currentSequence:',originalSequenceName)
                 writeNadirImages(item, settings, originalSequenceName, desc, basepath, logo,newlogofile,logoOverlayPosition)
                 .then(() => cb())
                 .catch((err) => cb(err));

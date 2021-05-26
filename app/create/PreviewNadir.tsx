@@ -94,7 +94,7 @@ export default function SequencePreviewNadir() {
           value={state.percentage}
           onChange={handlePercentageSliderChange}
           step={0.01}
-          min={0.01}
+          min={0.12}
           max={0.2}
           className={classes.slider}
           valueLabelDisplay="on"

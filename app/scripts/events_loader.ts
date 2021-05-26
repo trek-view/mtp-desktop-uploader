@@ -269,11 +269,11 @@ export default (mainWindow: BrowserWindow, app: App) => {
 
         return Async.eachOfLimit(
           //Array(16),
-          Array(20),
+          Array(9),
           1,
           (_item: unknown, key: any, cb: CallableFunction) => {
             const outputfile = path.resolve(basepath, `../${uuidv4()}.png`);
-            let percent = (1 + key) / 100;
+            let percent = (12 + key) / 100;
             let overlay_scale = Math.ceil(height * percent - 0.5);
             let overlay_position = height - overlay_scale;
             //"ffmpeg -y -i {} -vf scale={} {}".format(temp_output4,overlay_scale,temp_output5)
@@ -436,7 +436,7 @@ export default (mainWindow: BrowserWindow, app: App) => {
     );
 
     if (result) {
-      await removeTempFiles(app);
+      // await removeTempFiles(app);
       uploadErrorHandler(mainWindow, null, null, [], '');
       return sendToClient(mainWindow, 'add-seq', createdData2List(result), originalSequenceName, basepath);
     }
